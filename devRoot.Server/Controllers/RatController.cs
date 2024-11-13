@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace devRoot.Server.Controllers
 {
-    [ApiController]
     [Route("[controller]")]
+    [ApiController]
     public class RatController : Controller
     {
         [HttpGet(Name = "GetRats")]
@@ -17,7 +17,8 @@ namespace devRoot.Server.Controllers
             .ToArray();
         }
 
-        [HttpPost(Name = "PostRat")]
+        [HttpPost]
+        [Route("PostRat")]
         public void Post(Rat rat)
         {
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(rat));
