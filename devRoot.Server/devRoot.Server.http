@@ -1,6 +1,9 @@
 @devRoot.Server_HostAddress = http://localhost:5191
 
-GET {{devRoot.Server_HostAddress}}/weatherforecast/
+GET {{devRoot.Server_HostAddress}}/GetRats/
+Accept: application/json
+
+GET {{devRoot.Server_HostAddress}}/PostRat/
 Accept: application/json
 
 ###
