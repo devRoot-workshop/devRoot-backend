@@ -10,4 +10,4 @@ run:
 
 clean:
 	@echo "Removing old binaries..."
-	@sudo rm -rf ./devRoot.Server/bin/
+	@sudo rm -rf ./devRoot.Server/bin/ ./devRoot.Server/app/ ./devRoot.Server/obj/
