@@ -1,9 +1,10 @@
-@devRoot.Server_HostAddress = http://localhost:5191
+@Server_HostAddress = http://localhost:5191
 
-GET {{devRoot.Server_HostAddress}}/GetRats/
+GET {{Server_HostAddress}}/GetRats/
 Accept: application/json
+###
 
-GET {{devRoot.Server_HostAddress}}/PostRat/
+GET {{Server_HostAddress}}/PostRat/
 Accept: application/json
 
 ###
