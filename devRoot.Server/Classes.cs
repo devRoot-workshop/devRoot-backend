@@ -13,9 +13,13 @@ namespace devRoot.Server
         public RatType Type { get; set; }
     }
 
-    public class Tag
+    public class Tag : TagRequest
     {
         public int? ID { get; set; }
+    }
+
+    public class TagRequest
+    {
         public string? Name { get; set; }
     }
 }
