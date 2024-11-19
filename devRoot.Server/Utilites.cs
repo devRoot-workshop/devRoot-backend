@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Collections;
 using System.Net;
+using devRoot.Server.Models;
 
 namespace devRoot.Server
 {
@@ -20,9 +21,7 @@ namespace devRoot.Server
             return _context.Database.CanConnect();
         }
 
-        /*
-         * Kicsit gányolás
-         * 
+        /* 
         public IActionResult Return(object o, Type? t)
         {
             if (t?.IsInstanceOfType(o) == true)
