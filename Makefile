@@ -8,6 +8,15 @@ run:
 	@echo "Starting backend in development mode!"
 	@sudo dotnet ./devRoot.Server/bin/Development/net8.0/devRoot.Server.dll
 
+migrate:
+	@echo "Restoring tool: 'dotnet-ef' ..."
+	@sudo dotnet tool restore --tool-manifest ./devRoot.Server/.config/dotnet-tools.json
+	@echo "Building migrations..."
+	@sudo dotnet ef migrations add UpdateDatabase --project ./devRoot.Server/
+	@echo "Updating database with migration..."
+	@sudo dotnet ef database update --project ./devRoot.Server/
+    
 clean:
 	@echo "Removing old binaries..."
 	@sudo rm -rf ./devRoot.Server/bin/ ./devRoot.Server/app/ ./devRoot.Server/obj/
+

@@ -22,7 +22,7 @@ namespace devRoot.Server.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("devRoot.Server.Tag", b =>
+            modelBuilder.Entity("devRoot.Server.Models.Tag", b =>
                 {
                     b.Property<int?>("ID")
                         .ValueGeneratedOnAdd()
