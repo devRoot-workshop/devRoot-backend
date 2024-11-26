@@ -1,5 +1,7 @@
 using System;
 using devRoot.Server;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +30,11 @@ builder.Services.AddCors(options =>
                       });
 });
 
+FirebaseApp.Create(new AppOptions
+{
+    Credential = GoogleCredential.FromFile("./devRoot.json")
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -41,7 +48,12 @@ if (app.Environment.IsDevelopment())
 app.UseCors(myAllowSpecificOrigins);
 app.UseHttpsRedirection();
 
+
+
 app.UseAuthorization();
+app.UseMiddleware<FirebaseAuthMiddleware>();
+app.UseRouting();
+app.UseEndpoints(endpoints => endpoints.MapControllers());
 
 app.MapControllers();
 
