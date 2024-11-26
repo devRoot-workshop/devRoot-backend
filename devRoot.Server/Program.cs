@@ -7,28 +7,39 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
+const string myAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
-
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContextPool<devRootContext>(options =>
-    options.UseNpgsql(Environment.GetEnvironmentVariable("DEVROOTCONNECTIONSTRING", EnvironmentVariableTarget.Machine)));
 builder.Services.AddScoped<Utilites>();
 
+// // Connection string from system environment | Used in production
+// builder.Services.AddDbContextPool<devRootContext>(options =>
+//     options.UseNpgsql(Environment.GetEnvironmentVariable("DEVROOTCONNECTIONSTRING", EnvironmentVariableTarget.Machine)));
+
+/*
+    ---------- | DEVELOPMENT ONLY | ----------
+*/
+// Connection string for local postgresql container | Docker compose file provided
+builder.Services.AddDbContextPool<devRootContext>(options => options.UseNpgsql("Host=localhost;Port=5432;Database=efdb;Username=efuser;Password=efpassword"));
+    
+// CORS policy
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: myAllowSpecificOrigins,
-                      policy =>
-                      {
-                          policy.WithOrigins("http://localhost:3000",
-                                             "http://127.0.0.1:3000")
-                          .AllowAnyMethod()
-                          .AllowAnyHeader();
-                      });
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000",
+                    "http://127.0.0.1:3000")
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        });
 });
+/*
+    ---------- | DEVELOPMENT ONLY | ----------
+*/
 
 FirebaseApp.Create(new AppOptions
 {
@@ -37,15 +48,13 @@ FirebaseApp.Create(new AppOptions
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseCors(myAllowSpecificOrigins);
 }
 
-
-app.UseCors(myAllowSpecificOrigins);
 app.UseHttpsRedirection();
 
 

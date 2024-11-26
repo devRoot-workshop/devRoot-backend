@@ -1,4 +1,4 @@
-namespace devRoot.Server
+namespace devRoot.Server.Models
 {
     public class Rat
     {
