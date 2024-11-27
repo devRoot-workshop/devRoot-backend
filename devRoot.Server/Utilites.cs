@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-using System.Collections;
-using System.Net;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using devRoot.Server.Models;
+using Microsoft.AspNetCore.Hosting;
 
 namespace devRoot.Server
 {
@@ -55,6 +55,37 @@ namespace devRoot.Server
         }
         */
 
+        public List<Quest> GetQuests()
+        {
+            try
+            {
+                return _context.Quests.ToList();
+            }
+            catch (Exception e)
+            {
+                ExceptionHandler.Handle(e);
+                return null;
+            }
+        }
+
+        public void RegisterQuest(QuestRequest quest)
+        {
+            try
+            {
+                _context.Quests.Add(new Quest()
+                {
+                    Title = quest.Title,
+                    TaskDescription = quest.TaskDescription,
+                    Created = DateOnly.FromDateTime(DateTime.Now),
+                    Tags = quest.Tags
+                });
+            }
+            catch (Exception e)
+            {
+                ExceptionHandler.Handle(e);
+            }
+        }
+        
         public List<Tag> GetTags()
         {
             try

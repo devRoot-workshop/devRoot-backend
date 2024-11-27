@@ -1,4 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace devRoot.Server
 {
@@ -15,7 +17,7 @@ namespace devRoot.Server
         {
             if (_logger != null)
             {
-                _logger.LogError("Exception: "+e.ToString());
+                _logger.LogError("Exception: " + e);
             }
         }
     }
