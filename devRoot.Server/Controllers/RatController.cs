@@ -10,10 +10,11 @@ namespace devRoot.Server.Controllers
     [ApiController]
     public class RatController : Controller
     {
-        [HttpGet(Name = "GetRats")]
+        [HttpGet]
         public IEnumerable<Rat> Get()
         {
             var user = HttpContext.Items["User"];
+            
             if (user == null)
             {
                 return null;
