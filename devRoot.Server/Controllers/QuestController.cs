@@ -11,6 +11,7 @@ public class QuestController : Controller
     
     [HttpGet]
     [Route("getquests")]
+    [FirebaseAuthorization]
     public List<Quest> GetQuests()
     {
         return _utils.GetQuests();
