@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using devRoot.Server.Models;
+using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Hosting;
 
 namespace devRoot.Server
@@ -20,6 +21,19 @@ namespace devRoot.Server
         {
             return _context.Database.CanConnect();
         }
+
+        #region User
+        public async Task<UserRecord> GetUserAsync(string uid)
+        {
+            return await FirebaseAuth.DefaultInstance.GetUserAsync(uid);
+        }
+        #endregion
+        #region Role
+        public async Task<Role.RoleType> GetUserRole(string uid)
+        {
+            return Role.RoleType.SuperUser;
+        }
+        #endregion
 
         /* 
         public IActionResult Return(object o, Type? t)

@@ -4,13 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 namespace devRoot.Server.Controllers;
 
 [ApiController]
-[Route("[controller]/[action]")]
+[Route("[controller]")]
 public class QuestController : Controller
 {
     private readonly Utilites _utils;
     
     [HttpGet]
-    [Route("getquests")]
+    [Route("GetQuests")]
     [FirebaseAuthorization]
     public List<Quest> GetQuests()
     {
@@ -18,17 +18,11 @@ public class QuestController : Controller
     }
 
     [HttpPost]
-    [Route("createquest")]
+    [Route("CreateQuest")]
+    [FirebaseAuthorization]
     public IActionResult CreateQuest([FromBody] QuestRequest req)
     {
-        var user = HttpContext.Items["User"];
-        
-        if (user != null)
-        {
-            _utils.RegisterQuest(req);
-            return Ok();
-        }
-        
-        return Unauthorized();
+        _utils.RegisterQuest(req);
+        return Ok();
     }
 }

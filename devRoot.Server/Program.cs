@@ -1,6 +1,7 @@
 using System;
 using devRoot.Server;
 using FirebaseAdmin;
+using FirebaseAdmin.Auth;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
@@ -20,14 +21,14 @@ internal class Program
         builder.Services.AddScoped<Utilites>();
 
         // // Connection string from system environment | Used in production
-        // builder.Services.AddDbContextPool<devRootContext>(options =>
-        //     options.UseNpgsql(Environment.GetEnvironmentVariable("DEVROOTCONNECTIONSTRING", EnvironmentVariableTarget.Machine)));
+        builder.Services.AddDbContextPool<devRootContext>(options =>
+            options.UseNpgsql(Environment.GetEnvironmentVariable("DEVROOTCONNECTIONSTRING", EnvironmentVariableTarget.Machine)));
 
         /*
             ---------- | DEVELOPMENT ONLY | ----------
         */
         // Connection string for local postgresql container | Docker compose file provided
-        builder.Services.AddDbContextPool<devRootContext>(options => options.UseNpgsql("Host=localhost;Port=5432;Database=efdb;Username=efuser;Password=efpassword"));
+        //builder.Services.AddDbContextPool<devRootContext>(options => options.UseNpgsql("Host=localhost;Port=5432;Database=efdb;Username=efuser;Password=efpassword"));
 
         // CORS policy
         builder.Services.AddCors(options =>
@@ -49,6 +50,11 @@ internal class Program
         // {
         //     Credential = GoogleCredential.FromFile("./devRoot.json")
         // });
+        FirebaseApp.Create(new AppOptions
+        {
+            Credential = GoogleCredential.FromFile("./devRoot.json")
+        });
+        builder.Services.AddSingleton<FirebaseService>();
 
         var app = builder.Build();
 
@@ -60,8 +66,6 @@ internal class Program
         }
 
         app.UseHttpsRedirection();
-        
-        app.UseMiddleware<FirebaseAuthMiddleware>();
         app.UseRouting();
         app.UseAuthorization();
         app.UseEndpoints(endpoints =>

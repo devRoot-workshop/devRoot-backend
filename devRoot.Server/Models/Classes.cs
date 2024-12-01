@@ -12,14 +12,4 @@ namespace devRoot.Server.Models
         public string Name { get; set; }
         public RatType Type { get; set; }
     }
-
-    public class Tag : TagRequest
-    {
-        public int? ID { get; set; }
-    }
-
-    public class TagRequest
-    {
-        public string? Name { get; set; }
-    }
 }

@@ -11,15 +11,10 @@ namespace devRoot.Server.Controllers
     public class RatController : Controller
     {
         [HttpGet]
+        [FirebaseAuthorization]
         public IEnumerable<Rat> Get()
         {
             var user = HttpContext.Items["User"];
-            
-            if (user == null)
-            {
-                return null;
-            }
-
             return Enumerable.Range(1, 5).Select(index => new Rat
             {
                 Name = new List<string> { "Ratatouille", "Julius Cheeser", "Cheeseball" }[new Random().Next(3)],

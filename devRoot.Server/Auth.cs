@@ -40,10 +40,13 @@ namespace devRoot.Server
     {
         public FirebaseService()
         {
-            FirebaseApp.Create(new AppOptions
+            if (FirebaseApp.DefaultInstance == null)
             {
-                Credential = GoogleCredential.FromFile("./devRoot.json")
-            });
+                FirebaseApp.Create(new AppOptions
+                {
+                    Credential = GoogleCredential.FromFile("./devRoot.json")
+                });
+            }
         }
     }
 }
