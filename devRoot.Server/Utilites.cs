@@ -32,7 +32,7 @@ namespace devRoot.Server
         #region Role
         public async Task<Role.RoleType> GetUserRole(string uid)
         {
-            return Role.RoleType.SuperUser;
+            return Role.RoleType.QuestCreator;
         }
         #endregion
 
