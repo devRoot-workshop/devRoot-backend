@@ -4,11 +4,10 @@
     {
         public enum RoleType
         {
-            SuperUser,
-            Student,
-            Teacher
+            TagCreator,
+            QuestCreator
         }
-        public RoleType Type { get; set; }
-        public string UserUid { get; set; }
+        public List<RoleType> Types { get; set; }
+        public string? UserUid { get; set; }
     }
 }
