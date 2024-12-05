@@ -8,11 +8,15 @@ namespace devRoot.Server.Controllers;
 public class QuestController : Controller
 {
     private readonly Utilites _utils;
-    
+    public QuestController(Utilites utils)
+    {
+        _utils = utils;
+    }
+
     [HttpGet]
     [Route("GetQuests")]
     [FirebaseAuthorization]
-    public List<Quest> GetQuests()
+    public List<QuestDto> GetQuests()
     {
         return _utils.GetQuests();
     }
@@ -23,6 +27,29 @@ public class QuestController : Controller
     public IActionResult CreateQuest([FromBody] QuestRequest req)
     {
         _utils.RegisterQuest(req);
+        return Ok();
+    }
+
+    [HttpGet]
+    [Route("/{id}/GetQuest")]
+    public Quest GetQuest([FromRoute] int id)
+    {
+        return _utils.GetQuest(id);
+    }
+
+    [HttpPatch]
+    [Route("/{id}/AddTag")]
+    public IActionResult AddTag([FromRoute] int id, [FromBody] int tagid)
+    {
+        _utils.AddTagToQuest(id, tagid);
+        return Ok();
+    }
+
+    [HttpPatch]
+    [Route("/{id}/RemoveTag")]
+    public IActionResult RemoveTag([FromRoute] int id, [FromBody] int tagid)
+    {
+        _utils.RemoveTagFromQuest(id, tagid);
         return Ok();
     }
 }

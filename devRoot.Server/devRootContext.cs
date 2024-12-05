@@ -6,14 +6,21 @@ namespace devRoot.Server
 {
     public class devRootContext(DbContextOptions<devRootContext> options) : DbContext(options)
     {
-        public DbSet<Tag> Tags { get; set; }
-        public DbSet<Quest> Quests { get; set; }
+        public DbSet<Tag>? Tags { get; set; }
+        public DbSet<Quest>? Quests { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Tag>().Property(k => k.ID).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Tag>().Property(k => k.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Quest>().Property(k => k.Id).ValueGeneratedOnAdd();
+
+            //many to many
+            modelBuilder.Entity<Quest>()
+                .HasMany(q => q.Tags)
+                .WithMany(q => q.Quests)
+                .UsingEntity("QuestTagJoin");
         }
     }
 }
