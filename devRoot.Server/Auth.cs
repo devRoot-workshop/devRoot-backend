@@ -14,24 +14,27 @@ namespace devRoot.Server
     {
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            var authHeader = context.HttpContext.Request.Headers["Authorization"].ToString();
-
-            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            if (1 == 2)
             {
-                context.Result = new UnauthorizedResult();
-                return;
-            }
+                var authHeader = context.HttpContext.Request.Headers["Authorization"].ToString();
 
-            var token = authHeader.Substring("Bearer ".Length).Trim();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                {
+                    context.Result = new UnauthorizedResult();
+                    return;
+                }
 
-            try
-            {
-                var decodedToken = FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token).Result;
-                context.HttpContext.Items["User"] = decodedToken;
-            }
-            catch
-            {
-                context.Result = new UnauthorizedResult();
+                var token = authHeader.Substring("Bearer ".Length).Trim();
+
+                try
+                {
+                    var decodedToken = FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token).Result;
+                    context.HttpContext.Items["User"] = decodedToken;
+                }
+                catch
+                {
+                    context.Result = new UnauthorizedResult();
+                }
             }
         }
     }

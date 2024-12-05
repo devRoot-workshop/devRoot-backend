@@ -9,7 +9,6 @@ namespace devRoot.Server.Controllers
     public class TagController : ControllerBase
     {
         private readonly Utilites _utils;
-
         public TagController(Utilites utils)
         {
             _utils = utils;
@@ -17,14 +16,14 @@ namespace devRoot.Server.Controllers
 
         [HttpGet]
         [Route("GetTags")]
-        public List<Tag> GetTags()
+        public List<TagDto> GetTags()
         {
             return _utils.GetTags();
         }
 
         [HttpGet]
         [Route("{id}/GetTag")]
-        public Tag GetTag(int id)
+        public DetailedTag GetTag(int id)
         {
             return _utils.GetTag(id);
         }
