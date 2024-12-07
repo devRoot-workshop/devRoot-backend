@@ -1,4 +1,4 @@
-namespace devRoot.Server
+namespace devRoot.Server.Models
 {
     public class Rat
     {
@@ -11,11 +11,5 @@ namespace devRoot.Server
 
         public string Name { get; set; }
         public RatType Type { get; set; }
-    }
-
-    public class Tag
-    {
-        public int? ID { get; set; }
-        public string? Name { get; set; }
     }
 }

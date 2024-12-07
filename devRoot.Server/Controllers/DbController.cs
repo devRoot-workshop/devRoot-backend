@@ -4,11 +4,11 @@ namespace devRoot.Server.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class DBController : ControllerBase
+    public class DbController : ControllerBase
     {
         private readonly Utilites _utils;
 
-        public DBController(Utilites utils)
+        public DbController(Utilites utils)
         {
             _utils = utils;
         }
