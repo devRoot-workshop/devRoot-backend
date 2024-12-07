@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using devRoot.Server.Models;
+using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Mvc;
 
 namespace devRoot.Server.Controllers
@@ -12,6 +13,7 @@ namespace devRoot.Server.Controllers
     {
         [HttpGet]
         [FirebaseAuthorization]
+        [RoleTagCreator]
         public IEnumerable<Rat> Get()
         {
             var user = HttpContext.Items["User"];

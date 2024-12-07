@@ -30,9 +30,10 @@ namespace devRoot.Server
         }
         #endregion
         #region Role
-        public async Task<Role.RoleType> GetUserRole(string uid)
+        public List<Role.RoleType> GetUserRoleTypes(string uid)
         {
-            return Role.RoleType.QuestCreator;
+            var a = _context.Roles.First(r => r.UserUid == uid).Types;
+            return a.ToList();
         }
         #endregion
 

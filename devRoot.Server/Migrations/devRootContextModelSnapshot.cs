@@ -61,6 +61,26 @@ namespace devRoot.Server.Migrations
                     b.ToTable("Quests");
                 });
 
+            modelBuilder.Entity("devRoot.Server.Models.Role", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int[]>("Types")
+                        .IsRequired()
+                        .HasColumnType("integer[]");
+
+                    b.Property<string>("UserUid")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles");
+                });
+
             modelBuilder.Entity("devRoot.Server.Models.Tag", b =>
                 {
                     b.Property<int>("Id")
