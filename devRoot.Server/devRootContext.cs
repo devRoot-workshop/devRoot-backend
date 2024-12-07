@@ -8,6 +8,7 @@ namespace devRoot.Server
     {
         public DbSet<Tag>? Tags { get; set; }
         public DbSet<Quest>? Quests { get; set; }
+        public DbSet<Role>? Roles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -15,6 +16,7 @@ namespace devRoot.Server
 
             modelBuilder.Entity<Tag>().Property(k => k.Id).ValueGeneratedOnAdd();
             modelBuilder.Entity<Quest>().Property(k => k.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Role>().Property(k => k.Id).ValueGeneratedOnAdd();
 
             //many to many
             modelBuilder.Entity<Quest>()

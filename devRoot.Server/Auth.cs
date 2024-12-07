@@ -14,8 +14,6 @@ namespace devRoot.Server
     {
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            if (1 == 2)
-            {
                 var authHeader = context.HttpContext.Request.Headers["Authorization"].ToString();
 
                 if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
@@ -35,7 +33,6 @@ namespace devRoot.Server
                 {
                     context.Result = new UnauthorizedResult();
                 }
-            }
         }
     }
 
