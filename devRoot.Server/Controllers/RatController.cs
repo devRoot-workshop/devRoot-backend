@@ -13,7 +13,6 @@ namespace devRoot.Server.Controllers
     {
         [HttpGet]
         [FirebaseAuthorization]
-        [RoleTagCreator]
         public IEnumerable<Rat> Get()
         {
             var user = HttpContext.Items["User"];
@@ -33,6 +32,7 @@ namespace devRoot.Server.Controllers
 
         [HttpPost]
         [Route("PostRat")]
+        [Authorize(Role.RoleType.TagCreator, Role.RoleType.QuestCreator)]
         public void Post(Rat rat)
         {
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(rat));

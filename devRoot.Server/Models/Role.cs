@@ -17,32 +17,43 @@ namespace devRoot.Server.Models
         public string? UserUid { get; set; }
     }
 
-    public class RoleTagCreator : TypeFilterAttribute
+    public class Authorize : TypeFilterAttribute
     {
-        public RoleTagCreator() : base(typeof(RoleTagFilter))
+        public Authorize(params Role.RoleType[] allowedRoles)
+            : base(typeof(AuthorizeFilter))
         {
-            
+            Arguments = new object[] { allowedRoles };
         }
-        private class RoleTagFilter : IAuthorizationFilter
+
+        private class AuthorizeFilter : IAuthorizationFilter
         {
             private readonly Utilites _utils;
+            private readonly List<Role.RoleType> _allowedRoles;
 
-            public RoleTagFilter(Utilites utils)
+            public AuthorizeFilter(Utilites utils, Role.RoleType[] allowedRoles)
             {
                 _utils = utils;
+                _allowedRoles = allowedRoles.ToList();
             }
+
             public void OnAuthorization(AuthorizationFilterContext context)
             {
                 FirebaseToken user = context.HttpContext.Items["User"] as FirebaseToken;
+
                 try
                 {
                     if (user != null)
                     {
-                        if (!_utils.GetUserRoleTypes(user.Uid).Contains(Role.RoleType.TagCreator))
+                        var userRoles = _utils.GetUserRoleTypes(user.Uid);
+                        if (!_allowedRoles.Any(role => userRoles.Contains(role)))
                         {
                             context.Result = new UnauthorizedResult();
                             return;
                         }
+                    }
+                    else
+                    {
+                        context.Result = new UnauthorizedResult();
                     }
                 }
                 catch
@@ -51,7 +62,6 @@ namespace devRoot.Server.Models
                 }
             }
         }
-
-
     }
+
 }
