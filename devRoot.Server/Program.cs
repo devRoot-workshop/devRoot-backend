@@ -42,17 +42,9 @@ internal class Program
                         .AllowAnyHeader();
                 });
         });
-        /*
-            ---------- | DEVELOPMENT ONLY | ----------
-        */
-
-        // FirebaseApp.Create(new AppOptions
-        // {
-        //     Credential = GoogleCredential.FromFile("./devRoot.json")
-        // });
         FirebaseApp.Create(new AppOptions
         {
-            Credential = GoogleCredential.FromFile("./devRoot.json")
+            Credential = GoogleCredential.FromJson(Environment.GetEnvironmentVariable("DEVROOTFIREBASESTRING", EnvironmentVariableTarget.Machine))
         });
         builder.Services.AddSingleton<FirebaseService>();
 
