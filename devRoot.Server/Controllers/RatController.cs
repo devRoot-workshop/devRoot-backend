@@ -4,6 +4,7 @@ using System.Linq;
 using devRoot.Server.Models;
 using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Mvc;
+using devRoot.Server.Auth;
 
 namespace devRoot.Server.Controllers
 {
