@@ -16,7 +16,7 @@ namespace devRoot.Server.Controllers
 
         [HttpGet]
         [Route("GetTags")]
-        public List<TagDto> GetTags()
+        public async Task<List<TagDto>> GetTags()
         {
             return _utils.GetTags();
         }
