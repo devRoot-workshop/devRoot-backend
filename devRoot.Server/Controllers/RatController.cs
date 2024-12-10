@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using devRoot.Server.Models;
+using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Mvc;
+using devRoot.Server.Auth;
 
 namespace devRoot.Server.Controllers
 {
@@ -15,6 +17,12 @@ namespace devRoot.Server.Controllers
         public IEnumerable<Rat> Get()
         {
             var user = HttpContext.Items["User"];
+
+            if (user == null)
+            {
+                return null;
+            }
+
             return Enumerable.Range(1, 5).Select(index => new Rat
             {
                 Name = new List<string> { "Ratatouille", "Julius Cheeser", "Cheeseball" }[new Random().Next(3)],
@@ -25,6 +33,7 @@ namespace devRoot.Server.Controllers
 
         [HttpPost]
         [Route("PostRat")]
+        [Authorize(Role.RoleType.TagCreator, Role.RoleType.QuestCreator)]
         public void Post(Rat rat)
         {
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(rat));

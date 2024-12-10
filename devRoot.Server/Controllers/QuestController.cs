@@ -1,5 +1,6 @@
 using devRoot.Server.Models;
 using Microsoft.AspNetCore.Mvc;
+using devRoot.Server.Auth;
 
 namespace devRoot.Server.Controllers;
 

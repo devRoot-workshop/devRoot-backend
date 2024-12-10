@@ -1,18 +1,24 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using devRoot.Server.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace devRoot.Server.Controllers
 {
+    [ApiController]
+    [Route("[controller]")]
     public class RoleController : Controller
     {
         private readonly IHostEnvironment hostEnvironment;
-
-        public RoleController(IHostEnvironment hostEnvironment)
+        
+        private readonly Utilites _utils;
+        public RoleController(Utilites utils)
         {
-            this.hostEnvironment = hostEnvironment;
+            _utils = utils;
         }
-        public IActionResult GetRole(string uid)
+        [HttpGet]
+        [Route("GetRoleTypes")]
+        public List<Role.RoleType> GetRoleTypes(string uid)
         {
-            return View();
+            return _utils.GetUserRoleTypes(uid);
         }
     }
 }

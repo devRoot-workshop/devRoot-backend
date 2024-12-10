@@ -1,5 +1,7 @@
 using System;
+using System.Reflection.Metadata;
 using devRoot.Server;
+using devRoot.Server.Auth;
 using FirebaseAdmin;
 using FirebaseAdmin.Auth;
 using Google.Apis.Auth.OAuth2;
@@ -7,6 +9,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Interfaces;
+using Microsoft.OpenApi.Models;
 
 internal class Program
 {
@@ -42,17 +46,48 @@ internal class Program
                         .AllowAnyHeader();
                 });
         });
-        /*
-            ---------- | DEVELOPMENT ONLY | ----------
-        */
 
-        // FirebaseApp.Create(new AppOptions
-        // {
-        //     Credential = GoogleCredential.FromFile("./devRoot.json")
-        // });
+        builder.Services.AddSwaggerGen(config =>
+        {
+            config.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+            {
+                Title = "devRoot ASP.NET Core REST API",
+                Description = "This is the Swagger documentation for the backend endpoints of the devRoot app",
+                Version = "v1"
+            });
+
+            // Add the security definition for Bearer token
+            config.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT",
+                In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                Description = "Enter the Bearer token in the format 'Bearer {token}'"
+            });
+
+            // Add a global security requirement so it applies to all endpoints
+            config.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+        });
+
+
         FirebaseApp.Create(new AppOptions
         {
-            Credential = GoogleCredential.FromFile("./devRoot.json")
+            Credential = GoogleCredential.FromJson(Environment.GetEnvironmentVariable("DEVROOTFIREBASESTRING", EnvironmentVariableTarget.Machine))
         });
         builder.Services.AddSingleton<FirebaseService>();
 
