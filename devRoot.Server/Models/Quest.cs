@@ -13,7 +13,7 @@ public class QuestDto
 public class Quest : BaseQuest
 {
     public int Id { get; set; }
-    public List<Tag> Tags { get; set; } 
+    public List<Tag> Tags { get; set; }
 }
 
 public class BaseQuest

@@ -36,9 +36,10 @@ namespace devRoot.Server
         }
         #endregion
         #region Role
-        public async Task<Role.RoleType> GetUserRole(string uid)
+        public List<Role.RoleType> GetUserRoleTypes(string uid)
         {
-            return Role.RoleType.TagCreator;
+            var a = _context.Roles.First(r => r.UserUid == uid).Types;
+            return a.ToList();
         }
         #endregion
 
@@ -76,28 +77,11 @@ namespace devRoot.Server
         }
         */
 
-        #region Quest
-
-        public List<QuestDto> GetQuests()
+        public List<Quest> GetQuests()
         {
             try
             {
-                List<Quest> quests = _context.Quests.Include(q => q.Tags).ToList();
-                return quests.Select(quest =>
-                    new QuestDto
-                    {
-                        Id = quest.Id,
-                        Created = quest.Created,
-                        TaskDescription = quest.TaskDescription,
-                        Title = quest.Title,
-                        Tags = quest.Tags.Select(t =>
-                        new TagDto
-                        {
-                            Description = t.Description,
-                            Id = t.Id,
-                            Name = t.Name
-                        }).ToList()
-                    }).ToList();
+                return _context.Quests.ToList();
             }
             catch (Exception e)
             {
@@ -106,20 +90,17 @@ namespace devRoot.Server
             }
         }
 
-        public void RegisterQuest(QuestRequest questRequest)
+        public void RegisterQuest(QuestRequest quest)
         {
             try
             {
-                List<Tag> tags = _context.Tags.Where(tag => questRequest.TagId.Contains(tag.Id)).ToList();
-                var newQuest = new Quest
+                _context.Quests.Add(new Quest()
                 {
-                    Title = questRequest.Title,
-                    TaskDescription = questRequest.TaskDescription,
-                    Created = questRequest.Created,
-                    Tags = tags
-                };
-                _context.Quests.Add(newQuest);
-                _context.SaveChanges();
+                    Title = quest.Title,
+                    TaskDescription = quest.TaskDescription,
+                    Created = DateOnly.FromDateTime(DateTime.Now),
+                    Tags = quest.Tags
+                });
             }
             catch (Exception e)
             {
@@ -127,46 +108,7 @@ namespace devRoot.Server
             }
         }
 
-        public void AddTagToQuest(int questid, int tagid)
-        {
-            try
-            {
-                Quest refrence = _context.Quests.Include(t => t.Tags).First(q => q.Id == questid);
-                Tag tag = _context.Tags.Find(tagid);
-                if (tag != null)
-                {
-                    refrence.Tags.Add(tag);
-                }
-                _context.SaveChanges();
-            }
-            catch (Exception e)
-            {
-                ExceptionHandler.Handle(e);
-            }
-        }
-
-        public void RemoveTagFromQuest(int questid, int tagid)
-        {
-            try
-            {
-                Quest refrence = _context.Quests.Include(t => t.Tags).First(q => q.Id == questid);
-                Tag tag = _context.Tags.Find(tagid);
-                if (tag != null)
-                {
-                    if (refrence.Tags.Contains(tag))
-                    {
-                        refrence.Tags.Remove(tag);
-                    }
-                }
-                _context.SaveChanges();
-            }
-            catch (Exception e)
-            {
-                ExceptionHandler.Handle(e);
-            }
-        }
-
-        public Quest GetQuest(int id)
+        public List<Tag> GetTags()
         {
             try
             {
