@@ -23,12 +23,6 @@ namespace devRoot.Server
             return _context.Database.CanConnect();
         }
 
-        public List<Role.RoleType> GetUserRoleTypes(string uid)
-        {
-            var a = _context.Roles.First(r => r.UserUid == uid).Types;
-            return a.ToList();
-        }
-
         #region User
         public async Task<UserRecord> GetUserAsync(string uid)
         {
@@ -77,11 +71,28 @@ namespace devRoot.Server
         }
         */
 
-        public List<Quest> GetQuests()
+        #region Quest
+
+        public List<QuestDto> GetQuests()
         {
             try
             {
-                return _context.Quests.ToList();
+                List<Quest> quests = _context.Quests.Include(q => q.Tags).ToList();
+                return quests.Select(quest =>
+                    new QuestDto
+                    {
+                        Id = quest.Id,
+                        Created = quest.Created,
+                        TaskDescription = quest.TaskDescription,
+                        Title = quest.Title,
+                        Tags = quest.Tags.Select(t =>
+                        new TagDto
+                        {
+                            Description = t.Description,
+                            Id = t.Id,
+                            Name = t.Name
+                        }).ToList()
+                    }).ToList();
             }
             catch (Exception e)
             {
@@ -90,17 +101,20 @@ namespace devRoot.Server
             }
         }
 
-        public void RegisterQuest(QuestRequest quest)
+        public void RegisterQuest(QuestRequest questRequest)
         {
             try
             {
-                _context.Quests.Add(new Quest()
+                List<Tag> tags = _context.Tags.Where(tag => questRequest.TagId.Contains(tag.Id)).ToList();
+                var newQuest = new Quest
                 {
-                    Title = quest.Title,
-                    TaskDescription = quest.TaskDescription,
-                    Created = DateOnly.FromDateTime(DateTime.Now),
-                    Tags = quest.Tags
-                });
+                    Title = questRequest.Title,
+                    TaskDescription = questRequest.TaskDescription,
+                    Created = questRequest.Created,
+                    Tags = tags
+                };
+                _context.Quests.Add(newQuest);
+                _context.SaveChanges();
             }
             catch (Exception e)
             {
@@ -108,7 +122,46 @@ namespace devRoot.Server
             }
         }
 
-        public List<Tag> GetTags()
+        public void AddTagToQuest(int questid, int tagid)
+        {
+            try
+            {
+                Quest refrence = _context.Quests.Include(t=>t.Tags).First(q => q.Id == questid);
+                Tag tag = _context.Tags.Find(tagid);
+                if (tag != null)
+                {
+                    refrence.Tags.Add(tag);
+                }
+                _context.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                ExceptionHandler.Handle(e);
+            }
+        }
+
+        public void RemoveTagFromQuest(int questid, int tagid)
+        {
+            try
+            {
+                Quest refrence = _context.Quests.Include(t => t.Tags).First(q => q.Id == questid);
+                Tag tag = _context.Tags.Find(tagid);
+                if (tag != null)
+                {
+                    if (refrence.Tags.Contains(tag))
+                    {
+                        refrence.Tags.Remove(tag);
+                    }
+                }
+                _context.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                ExceptionHandler.Handle(e);
+            }
+        }
+
+        public Quest GetQuest(int id)
         {
             try
             {
@@ -168,7 +221,7 @@ namespace devRoot.Server
         {
             try
             {
-                _context.Tags.Add(new Tag { Name = request.Name, Description = request.Description });
+                _context.Tags.Add(new Tag {Name = request.Name, Description = request.Description });
                 _context.SaveChanges();
             }
             catch (Exception e)
