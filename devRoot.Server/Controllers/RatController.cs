@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using devRoot.Server.Auth;
 using devRoot.Server.Models;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,3 +1,4 @@
+using devRoot.Server.Auth;
 using devRoot.Server.Models;
 using Microsoft.AspNetCore.Mvc;
 

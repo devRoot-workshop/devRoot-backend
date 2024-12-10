@@ -23,6 +23,12 @@ namespace devRoot.Server
             return _context.Database.CanConnect();
         }
 
+        public List<Role.RoleType> GetUserRoleTypes(string uid)
+        {
+            var a = _context.Roles.First(r => r.UserUid == uid).Types;
+            return a.ToList();
+        }
+
         #region User
         public async Task<UserRecord> GetUserAsync(string uid)
         {
@@ -32,11 +38,11 @@ namespace devRoot.Server
         #region Role
         public async Task<Role.RoleType> GetUserRole(string uid)
         {
-            return Role.RoleType.SuperUser;
+            return Role.RoleType.TagCreator;
         }
         #endregion
 
-        /* 
+        /*
         public IActionResult Return(object o, Type? t)
         {
             if (t?.IsInstanceOfType(o) == true)
@@ -84,7 +90,7 @@ namespace devRoot.Server
                         Created = quest.Created,
                         TaskDescription = quest.TaskDescription,
                         Title = quest.Title,
-                        Tags = quest.Tags.Select(t => 
+                        Tags = quest.Tags.Select(t =>
                         new TagDto
                         {
                             Description = t.Description,
@@ -125,7 +131,7 @@ namespace devRoot.Server
         {
             try
             {
-                Quest refrence = _context.Quests.Include(t=>t.Tags).First(q => q.Id == questid);
+                Quest refrence = _context.Quests.Include(t => t.Tags).First(q => q.Id == questid);
                 Tag tag = _context.Tags.Find(tagid);
                 if (tag != null)
                 {
@@ -172,9 +178,9 @@ namespace devRoot.Server
                 return null;
             }
         }
-        
+
         #endregion
-        
+
         public List<TagDto> GetTags()
         {
             try
@@ -220,7 +226,7 @@ namespace devRoot.Server
         {
             try
             {
-                _context.Tags.Add(new Tag {Name = request.Name, Description = request.Description });
+                _context.Tags.Add(new Tag { Name = request.Name, Description = request.Description });
                 _context.SaveChanges();
             }
             catch (Exception e)
