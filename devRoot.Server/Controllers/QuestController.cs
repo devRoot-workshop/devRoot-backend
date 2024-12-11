@@ -1,4 +1,3 @@
-using devRoot.Server.Auth;
 using devRoot.Server.Models;
 using Microsoft.AspNetCore.Mvc;
 using devRoot.Server.Auth;
@@ -33,14 +32,14 @@ public class QuestController : Controller
     }
 
     [HttpGet]
-    [Route("/{id}/GetQuest")]
-    public Quest GetQuest([FromRoute] int id)
+    [Route("{id}/GetQuest")]
+    public QuestDto GetQuest([FromRoute] int id)
     {
         return _utils.GetQuest(id);
     }
 
     [HttpPatch]
-    [Route("/{id}/AddTag")]
+    [Route("{id}/AddTag")]
     public IActionResult AddTag([FromRoute] int id, [FromBody] int tagid)
     {
         _utils.AddTagToQuest(id, tagid);
@@ -48,7 +47,7 @@ public class QuestController : Controller
     }
 
     [HttpPatch]
-    [Route("/{id}/RemoveTag")]
+    [Route("{id}/RemoveTag")]
     public IActionResult RemoveTag([FromRoute] int id, [FromBody] int tagid)
     {
         _utils.RemoveTagFromQuest(id, tagid);

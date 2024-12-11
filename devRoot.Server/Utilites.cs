@@ -37,7 +37,7 @@ namespace devRoot.Server
         }
         #endregion
 
-        /*
+        /* 
         public IActionResult Return(object o, Type? t)
         {
             if (t?.IsInstanceOfType(o) == true)
@@ -85,7 +85,7 @@ namespace devRoot.Server
                         Created = quest.Created,
                         TaskDescription = quest.TaskDescription,
                         Title = quest.Title,
-                        Tags = quest.Tags.Select(t =>
+                        Tags = quest.Tags.Select(t => 
                         new TagDto
                         {
                             Description = t.Description,
@@ -161,11 +161,26 @@ namespace devRoot.Server
             }
         }
 
-        public Quest GetQuest(int id)
+        public QuestDto GetQuest(int id)
         {
             try
             {
-                return _context.Quests.Find(id);
+                return _context.Quests.Include(q => q.Tags).Select(q =>
+                new QuestDto
+                {
+                    Id = q.Id,
+                    Title = q.Title,
+                    Created = q.Created,
+                    TaskDescription = q.TaskDescription,
+                    Tags = q.Tags.Select(tag =>
+                    new TagDto
+                    {
+                        Id = tag.Id,
+                        Description = tag.Description,
+                        Name = tag.Name,
+                    }).ToList()
+
+                }).First(q => q.Id == id);
             }
             catch (Exception e)
             {
@@ -173,9 +188,9 @@ namespace devRoot.Server
                 return null;
             }
         }
-
+        
         #endregion
-
+        
         public List<TagDto> GetTags()
         {
             try

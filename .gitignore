@@ -364,4 +364,4 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /devRoot.Server/app/build
-devRoot.json
+/devRoot.Server/devRoot.json
