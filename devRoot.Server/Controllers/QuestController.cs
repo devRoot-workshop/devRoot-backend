@@ -17,9 +17,9 @@ public class QuestController : Controller
     [HttpGet]
     [Route("GetQuests")]
     [FirebaseAuthorization]
-    public List<QuestDto> GetQuests()
+    public List<QuestDto> GetQuests([FromQuery] int? PageNumber = null, [FromQuery] int? PageSize = null)
     {
-        return _utils.GetQuests();
+        return _utils.GetQuests(PageNumber, PageSize);
     }
 
     [HttpPost]

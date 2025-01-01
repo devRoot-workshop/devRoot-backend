@@ -73,12 +73,12 @@ namespace devRoot.Server
 
         #region Quest
 
-        public List<QuestDto> GetQuests()
+        public List<QuestDto> GetQuests(int? pagenumber = null, int? pagesize = null)
         {
             try
             {
                 List<Quest> quests = _context.Quests.Include(q => q.Tags).ToList();
-                return quests.Select(quest =>
+                var query = quests.Select(quest =>
                     new QuestDto
                     {
                         Id = quest.Id,
@@ -93,6 +93,21 @@ namespace devRoot.Server
                             Name = t.Name
                         }).ToList()
                     }).ToList();
+
+                if (pagenumber != null && pagesize != null)
+                {
+                    if (pagenumber > 0 && pagesize > 0)
+                    {
+                        int _pagenumber = pagenumber ?? default(int);
+                        int _pagesize = pagesize ?? default(int);
+                        return query.Skip((_pagenumber-1)*_pagesize).Take(_pagesize).ToList();
+                    }
+                    return null;
+                }
+                else
+                {
+                    return query;
+                }
             }
             catch (Exception e)
             {
