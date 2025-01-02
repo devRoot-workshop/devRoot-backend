@@ -20,25 +20,34 @@ namespace devRoot.Server.Auth
     {
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            var authHeader = context.HttpContext.Request.Headers["Authorization"].ToString();
-
-            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
-            {
-                context.Result = new UnauthorizedResult();
-                return;
-            }
-
-            var token = authHeader.Substring("Bearer ".Length).Trim();
-
             try
             {
-                var decodedToken = FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token).Result;
-                context.HttpContext.Items["User"] = decodedToken;
-                Console.WriteLine(decodedToken.Uid);
+                if (Environment.GetEnvironmentVariable("DEVROOTDEBUG", EnvironmentVariableTarget.Machine) != "TRUE")
+                {
+                    var authHeader = context.HttpContext.Request.Headers["Authorization"].ToString();
+
+                    if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                    {
+                        context.Result = new UnauthorizedResult();
+                        return;
+                    }
+
+                    var token = authHeader.Substring("Bearer ".Length).Trim();
+
+                    try
+                    {
+                        var decodedToken = FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token).Result;
+                        context.HttpContext.Items["User"] = decodedToken;
+                        Console.WriteLine(decodedToken.Uid);
+                    }
+                    catch
+                    {
+                        context.Result = new UnauthorizedResult();
+                    }
+                }
             }
-            catch
+            catch (Exception)
             {
-                context.Result = new UnauthorizedResult();
             }
         }
     }

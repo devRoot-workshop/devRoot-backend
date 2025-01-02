@@ -27,7 +27,6 @@ internal class Program
         // // Connection string from system environment | Used in production
         builder.Services.AddDbContextPool<devRootContext>(options =>
             options.UseNpgsql(Environment.GetEnvironmentVariable("DEVROOTCONNECTIONSTRING", EnvironmentVariableTarget.Machine)));
-
         /*
             ---------- | DEVELOPMENT ONLY | ----------
         */

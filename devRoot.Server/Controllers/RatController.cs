@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using devRoot.Server.Auth;
 using devRoot.Server.Models;
 using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Mvc;
@@ -17,13 +16,6 @@ namespace devRoot.Server.Controllers
         [FirebaseAuthorization]
         public IEnumerable<Rat> Get()
         {
-            var user = HttpContext.Items["User"];
-
-            if (user == null)
-            {
-                return null;
-            }
-
             return Enumerable.Range(1, 5).Select(index => new Rat
             {
                 Name = new List<string> { "Ratatouille", "Julius Cheeser", "Cheeseball" }[new Random().Next(3)],
