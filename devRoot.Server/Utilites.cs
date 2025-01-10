@@ -85,6 +85,9 @@ namespace devRoot.Server
                         Created = quest.Created,
                         TaskDescription = quest.TaskDescription,
                         Title = quest.Title,
+                        Code = quest.Code,
+                        Console = quest.Console,
+                        Difficulty = quest.Difficulty,
                         Tags = quest.Tags.Select(t => 
                         new TagDto
                         {
@@ -125,8 +128,11 @@ namespace devRoot.Server
                 {
                     Title = questRequest.Title,
                     TaskDescription = questRequest.TaskDescription,
-                    Created = questRequest.Created,
-                    Tags = tags
+                    Tags = tags,
+                    Difficulty = questRequest.Difficulty,
+                    Created = DateOnly.FromDateTime(DateTime.Now),
+                    Code = questRequest.Code,
+                    Console = questRequest.Console
                 };
                 _context.Quests.Add(newQuest);
                 _context.SaveChanges();
@@ -187,6 +193,9 @@ namespace devRoot.Server
                     Title = q.Title,
                     Created = q.Created,
                     TaskDescription = q.TaskDescription,
+                    Code = q.Code,
+                    Console = q.Console,
+                    Difficulty = q.Difficulty,
                     Tags = q.Tags.Select(tag =>
                     new TagDto
                     {
