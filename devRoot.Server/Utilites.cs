@@ -73,12 +73,11 @@ namespace devRoot.Server
 
         #region Quest
 
-        public List<QuestDto> GetQuests(int? pagenumber = null, int? pagesize = null)
+        public List<QuestDto> GetQuests(int? pagenumber = null, int? pagesize = null, List<int>? sorttags = null, QuestDifficulty difficulty = QuestDifficulty.None, QuestLanguage language = QuestLanguage.none)
         {
             try
             {
-                List<Quest> quests = _context.Quests.Include(q => q.Tags).ToList();
-                var query = quests.Select(quest =>
+                var query = _context.Quests.Include(q => q.Tags).ToList().Select(quest =>
                     new QuestDto
                     {
                         Id = quest.Id,
@@ -88,6 +87,7 @@ namespace devRoot.Server
                         Code = quest.Code,
                         Console = quest.Console,
                         Difficulty = quest.Difficulty,
+                        Language = quest.Language,
                         Tags = quest.Tags.Select(t => 
                         new TagDto
                         {
@@ -96,6 +96,19 @@ namespace devRoot.Server
                             Name = t.Name
                         }).ToList()
                     }).ToList();
+
+                if (sorttags != null && sorttags.Count > 0)
+                {
+                    query = query.Where(q => q.Tags.Any(t => sorttags.Contains((int)t.Id))).ToList();
+                }
+                if (difficulty != QuestDifficulty.None)
+                {
+                    query = query.Where(q => q.Difficulty == difficulty).ToList();
+                }
+                if (language != QuestLanguage.none)
+                {
+                    query = query.Where(q => q.Language == language).ToList();
+                }
 
                 if (pagenumber != null && pagesize != null)
                 {
@@ -132,7 +145,8 @@ namespace devRoot.Server
                     Difficulty = questRequest.Difficulty,
                     Created = DateOnly.FromDateTime(DateTime.Now),
                     Code = questRequest.Code,
-                    Console = questRequest.Console
+                    Console = questRequest.Console,
+                    Language = questRequest.Language
                 };
                 _context.Quests.Add(newQuest);
                 _context.SaveChanges();
@@ -215,6 +229,12 @@ namespace devRoot.Server
         
         #endregion
         
+
+        public int NumberOfQuests()
+        {
+            return _context.Quests.Count();
+        }
+
         public List<TagDto> GetTags()
         {
             try
