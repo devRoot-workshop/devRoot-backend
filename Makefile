@@ -25,4 +25,3 @@ docker:
 	@sudo docker build -t devroot-server:latest .
 	@echo "Running built docker container..."
 	@sudo docker run -d -p 8080:8080 -p 8081:8081 --name devroot-server devroot-server:latest
- 
