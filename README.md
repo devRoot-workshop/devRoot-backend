@@ -55,8 +55,10 @@ On windows:
 ## Available Targets
 
 - `build`: Builds the backend application
-- `run`: Runs the built backend application
+- `run_dev`: Runs the built backend application in development mode
+- `run_prod`: Runs the built backend application in production mode
 - `clean`: Cleans up all leftover binaries
+- `docker`: Builds the application into a docker container, and runs it
 - `migrate`: Creates a migration, and updates the database with it
 
 <hr>
