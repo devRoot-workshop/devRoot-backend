@@ -16,7 +16,6 @@ public class QuestController : Controller
 
     [HttpGet]
     [Route("GetQuests")]
-    [FirebaseAuthorization]
     public List<QuestDto> GetQuests([FromQuery] int? PageNumber = null, [FromQuery] int? PageSize = null, [FromQuery] List<int>? SortTags = null, [FromQuery] QuestDifficulty SortDifficulty = QuestDifficulty.None, [FromQuery] QuestLanguage SortLanguage = QuestLanguage.none)
     {
         return _utils.GetQuests(PageNumber, PageSize, SortTags, SortDifficulty, SortLanguage);
