@@ -38,6 +38,18 @@ On windows:
 .\setup.ps1 migrate
 ```
 
+And at last, to build into a docker container run:
+
+```sh
+make docker
+```
+
+On windows:
+
+```bat
+.\setup.ps1 docker
+```
+
 *Note: You need to run the development container, or use a working postgresql database for this to work.*
 
 ## Available Targets
