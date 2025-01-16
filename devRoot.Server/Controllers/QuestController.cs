@@ -16,9 +16,9 @@ public class QuestController : Controller
 
     [HttpGet]
     [Route("GetQuests")]
-    public List<QuestDto> GetQuests([FromQuery] int? PageNumber = null, [FromQuery] int? PageSize = null, [FromQuery] List<int>? SortTags = null, [FromQuery] QuestDifficulty SortDifficulty = QuestDifficulty.None, [FromQuery] QuestLanguage SortLanguage = QuestLanguage.none)
+    public List<QuestDto> GetQuests([FromQuery] int? PageNumber = null, [FromQuery] int? PageSize = null, [FromQuery] string? SearchQuery = null, [FromQuery] List<int>? SortTags = null, [FromQuery] QuestDifficulty SortDifficulty = QuestDifficulty.None, [FromQuery] QuestLanguage SortLanguage = QuestLanguage.none)
     {
-        return _utils.GetQuests(PageNumber, PageSize, SortTags, SortDifficulty, SortLanguage);
+        return _utils.GetQuests(PageNumber, PageSize, SearchQuery, SortTags, SortDifficulty, SortLanguage);
     }
 
     [HttpGet]

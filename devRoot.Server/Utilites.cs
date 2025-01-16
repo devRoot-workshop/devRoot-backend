@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text;
+using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
 using devRoot.Server.Models;
@@ -71,9 +73,21 @@ namespace devRoot.Server
         }
         */
 
+
+        //used to ignore the difference btwn "í" and "i", "á" and "a" etc.
+        private static string RemoveDiacritics(string text)
+        {
+            return string.Concat(
+                text.Normalize(NormalizationForm.FormD)
+                    .Replace("\u0301", "")
+                    .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+            ).Normalize(NormalizationForm.FormC);
+        }
+
+
         #region Quest
 
-        public List<QuestDto> GetQuests(int? pagenumber = null, int? pagesize = null, List<int>? sorttags = null, QuestDifficulty difficulty = QuestDifficulty.None, QuestLanguage language = QuestLanguage.none)
+        public List<QuestDto> GetQuests(int? pagenumber = null, int? pagesize = null, string? searchquery = null, List<int>? sorttags = null, QuestDifficulty difficulty = QuestDifficulty.None, QuestLanguage language = QuestLanguage.none)
         {
             try
             {
@@ -96,7 +110,12 @@ namespace devRoot.Server
                             Name = t.Name
                         }).ToList()
                     }).ToList();
-
+                    
+                if (!string.IsNullOrWhiteSpace(searchquery))
+                {
+                    var normalizedSearch = RemoveDiacritics(searchquery);
+                    query = query.Where(q => RemoveDiacritics(q.Title).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase)).ToList();
+                }
                 if (sorttags != null && sorttags.Count > 0)
                 {
                     query = query.Where(q => q.Tags.Any(t => sorttags.Contains((int)t.Id))).ToList();
