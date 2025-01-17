@@ -88,6 +88,7 @@ namespace devRoot.Server
                         Code = quest.Code,
                         Console = quest.Console,
                         Difficulty = quest.Difficulty,
+                        Language = quest.Language,
                         Tags = quest.Tags.Select(t => 
                         new TagDto
                         {
@@ -132,7 +133,8 @@ namespace devRoot.Server
                     Difficulty = questRequest.Difficulty,
                     Created = DateOnly.FromDateTime(DateTime.Now),
                     Code = questRequest.Code,
-                    Console = questRequest.Console
+                    Console = questRequest.Console,
+                    Language = questRequest.Language,
                 };
                 _context.Quests.Add(newQuest);
                 _context.SaveChanges();
@@ -196,6 +198,7 @@ namespace devRoot.Server
                     Code = q.Code,
                     Console = q.Console,
                     Difficulty = q.Difficulty,
+                    Language = q.Language,
                     Tags = q.Tags.Select(tag =>
                     new TagDto
                     {
