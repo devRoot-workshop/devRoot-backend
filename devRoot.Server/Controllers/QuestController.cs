@@ -16,11 +16,24 @@ public class QuestController : Controller
 
     [HttpGet]
     [Route("GetQuests")]
-    [FirebaseAuthorization]
-    public List<QuestDto> GetQuests([FromQuery] int? PageNumber = null, [FromQuery] int? PageSize = null)
+    public List<QuestDto> GetQuests([FromQuery] int? PageNumber = null, [FromQuery] int? PageSize = null, [FromQuery] string? SearchQuery = null, [FromQuery] List<int>? SortTags = null, [FromQuery] QuestDifficulty SortDifficulty = QuestDifficulty.None, [FromQuery] QuestLanguage SortLanguage = QuestLanguage.none)
     {
-        return _utils.GetQuests(PageNumber, PageSize);
+        return _utils.GetQuests(PageNumber, PageSize, SearchQuery, SortTags, SortDifficulty, SortLanguage);
     }
+
+    [HttpGet]
+    [Route("NumberOfPages")]
+    [FirebaseAuthorization]
+    public int NumberOfPages([FromQuery] int? PageSize = null)
+    {
+        int totalQuests = _utils.NumberOfQuests();
+        int pageSize = PageSize.HasValue && PageSize > 0 ? PageSize.Value : 10;
+        int numberOfPages = (int)Math.Ceiling((double)totalQuests / pageSize);
+
+
+        return numberOfPages;
+    }
+
 
     [HttpPost]
     [Route("CreateQuest")]

@@ -8,7 +8,7 @@ public class QuestDto
     public string Code { get; set; }
     public string Console { get; set; }
     public QuestDifficulty Difficulty { get; set; }
-    public CodeLanguage Language { get; set; }
+    public QuestLanguage Language { get; set; }
     public DateOnly Created { get; set; }
     public List<TagDto> Tags { get; set; }
 }
@@ -28,7 +28,7 @@ public class BaseQuest
     public string TaskDescription { get; set; }
     public string Code { get; set; }
     public string Console { get; set; }
-    public CodeLanguage Language { get; set; }
+    public QuestLanguage Language { get; set; }
 }
 
 public class QuestRequest : BaseQuest
@@ -44,8 +44,13 @@ public enum QuestDifficulty
     Hard = 3
 }
 
-public enum CodeLanguage
+public enum QuestLanguage
 {
-    csharp = 0,
+    none = 0,
     python = 1,
+    csharp = 2,
+    nextjs = 3,
+    java = 4,
+    cpp = 5,
+    c = 6
 }
