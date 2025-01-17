@@ -255,17 +255,23 @@ namespace devRoot.Server
             return _context.Quests.Count();
         }
 
-        public List<TagDto> GetTags()
+        public List<TagDto> GetTags(string? searchquery = null)
         {
             try
             {
-                return _context.Tags.Select(tag =>
+                var query = _context.Tags.Select(tag =>
                 new TagDto
                 {
                     Id = tag.Id,
                     Description = tag.Description,
                     Name = tag.Name,
                 }).ToList();
+                if (!String.IsNullOrEmpty(searchquery))
+                {
+                    query = query.Where(t => RemoveDiacritics(t.Name).Contains(RemoveDiacritics(searchquery), StringComparison.OrdinalIgnoreCase) || RemoveDiacritics(t.Description).Contains(RemoveDiacritics(searchquery), StringComparison.OrdinalIgnoreCase)).ToList();
+                }
+                return query;
+
             }
             catch (Exception e)
             {
