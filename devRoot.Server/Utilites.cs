@@ -165,11 +165,7 @@ namespace devRoot.Server
                     Created = DateOnly.FromDateTime(DateTime.Now),
                     Code = questRequest.Code,
                     Console = questRequest.Console,
-<<<<<<< HEAD
                     Language = questRequest.Language,
-=======
-                    Language = questRequest.Language
->>>>>>> 875b2ab081ea21024855b1bea2eaca0233c3a82d
                 };
                 _context.Quests.Add(newQuest);
                 _context.SaveChanges();
