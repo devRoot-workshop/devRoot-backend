@@ -19,10 +19,14 @@ public class QuestController : Controller
     public List<QuestDto> GetQuests([FromQuery] int? PageNumber = null, [FromQuery] int? PageSize = null, [FromQuery] string? SearchQuery = null, [FromQuery] string? SortTags = null, [FromQuery] QuestDifficulty SortDifficulty = QuestDifficulty.None, [FromQuery] QuestLanguage SortLanguage = QuestLanguage.none)
     {
         List<int> SortTagIds = new List<int>();
-        foreach (string tagid in SortTags.Split(","))
+        if (!string.IsNullOrEmpty(SortTags))
         {
-            SortTagIds.Add(Convert.ToInt32(tagid));
+            foreach (string tagid in SortTags.Split(","))
+            {
+                SortTagIds.Add(Convert.ToInt32(tagid));
+            }
         }
+
 
         return _utils.GetQuests(PageNumber, PageSize, SearchQuery, SortTagIds, SortDifficulty, SortLanguage);
     }
