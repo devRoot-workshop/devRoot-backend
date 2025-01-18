@@ -16,9 +16,15 @@ public class QuestController : Controller
 
     [HttpGet]
     [Route("GetQuests")]
-    public List<QuestDto> GetQuests([FromQuery] int? PageNumber = null, [FromQuery] int? PageSize = null, [FromQuery] string? SearchQuery = null, [FromQuery] List<int>? SortTags = null, [FromQuery] QuestDifficulty SortDifficulty = QuestDifficulty.None, [FromQuery] QuestLanguage SortLanguage = QuestLanguage.none)
+    public List<QuestDto> GetQuests([FromQuery] int? PageNumber = null, [FromQuery] int? PageSize = null, [FromQuery] string? SearchQuery = null, [FromQuery] string? SortTags = null, [FromQuery] QuestDifficulty SortDifficulty = QuestDifficulty.None, [FromQuery] QuestLanguage SortLanguage = QuestLanguage.none)
     {
-        return _utils.GetQuests(PageNumber, PageSize, SearchQuery, SortTags, SortDifficulty, SortLanguage);
+        List<int> SortTagIds = new List<int>();
+        foreach (string tagid in SortTags.Split(","))
+        {
+            SortTagIds.Add(Convert.ToInt32(tagid));
+        }
+
+        return _utils.GetQuests(PageNumber, PageSize, SearchQuery, SortTagIds, SortDifficulty, SortLanguage);
     }
 
     [HttpGet]
@@ -38,6 +44,7 @@ public class QuestController : Controller
     [HttpPost]
     [Route("CreateQuest")]
     [FirebaseAuthorization]
+    [Authorize(Role.RoleType.QuestCreator)]
     public IActionResult CreateQuest([FromBody] QuestRequest req)
     {
         _utils.RegisterQuest(req);

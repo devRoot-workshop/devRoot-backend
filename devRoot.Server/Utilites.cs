@@ -118,7 +118,12 @@ namespace devRoot.Server
                 }
                 if (sorttags != null && sorttags.Count > 0)
                 {
-                    query = query.Where(q => q.Tags.Any(t => sorttags.Contains((int)t.Id))).ToList();
+                    var sortTagSet = new HashSet<int>(sorttags); // Halmazba rendezés a gyors összehasonlítás érdekében
+                    query = query.Where(q =>
+                    {
+                        var questTagIds = new HashSet<int>(q.Tags.Select(t => (int)t.Id));
+                        return questTagIds.SetEquals(sortTagSet); // Halmazok pontos egyezésének ellenőrzése
+                    }).ToList();
                 }
                 if (difficulty != QuestDifficulty.None)
                 {
@@ -332,5 +337,54 @@ namespace devRoot.Server
                 ExceptionHandler.Handle(e);
             }
         }
+
+        #region Fillout
+
+        public List<FilloutDto> GetFillouts()
+        {
+            return _context.Fillouts.Select(f => new FilloutDto
+            {
+                Id = f.Id,
+                CompletionTime = f.CompletionTime,
+                SubmittedCode = f.SubmittedCode,
+                SubmittedLanguage = f.SubmittedLanguage,
+                FilloutTime = f.FilloutTime,
+                QuestId = f.QuestId,
+            }).ToList();
+        }
+
+        public FilloutDto GetFillout(int id)
+        {
+            return _context.Fillouts.Select(f => new FilloutDto
+            {
+                Id = f.Id,
+                CompletionTime = f.CompletionTime,
+                SubmittedCode = f.SubmittedCode,
+                SubmittedLanguage = f.SubmittedLanguage,
+                FilloutTime = f.FilloutTime,
+                QuestId = f.QuestId,
+            }).First(f => f.Id == id);
+        }
+
+
+        public List<FilloutDto> GetUserFillouts(string uid)
+        {
+            return _context.Fillouts.Where(f => f.Uid == uid).Select(f => new FilloutDto
+            {
+                Id = f.Id,
+                CompletionTime = f.CompletionTime,
+                SubmittedCode = f.SubmittedCode,
+                SubmittedLanguage = f.SubmittedLanguage,
+                FilloutTime = f.FilloutTime,
+                QuestId = f.QuestId,
+            }).ToList();
+        }
+
+        public async Task CreateFillout(Fillout fillout)
+        {
+            _context.Fillouts.Add(fillout);
+        }
+
+        #endregion
     }
 }
