@@ -39,7 +39,7 @@ internal class Program
             options.AddPolicy(name: myAllowSpecificOrigins,
                 policy =>
                 {
-                    policy.AllowAnyOrigin().WithOrigins("http://localhost:3000").WithOrigins("http://devroot.hu:3000")
+                    policy.AllowAnyOrigin()
                         .AllowAnyMethod()
                         .AllowAnyHeader();
                 });

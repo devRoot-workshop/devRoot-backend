@@ -118,11 +118,11 @@ namespace devRoot.Server
                 }
                 if (sorttags != null && sorttags.Count > 0)
                 {
-                    var sortTagSet = new HashSet<int>(sorttags); // Halmazba rendezés a gyors összehasonlítás érdekében
+                    var sortTagSet = new HashSet<int>(sorttags); // Halmazba rendezés a gyors összehasonlításhoz
                     query = query.Where(q =>
                     {
                         var questTagIds = new HashSet<int>(q.Tags.Select(t => (int)t.Id));
-                        return questTagIds.SetEquals(sortTagSet); // Halmazok pontos egyezésének ellenőrzése
+                        return sortTagSet.IsSubsetOf(questTagIds); // Ellenőrizzük, hogy a sorttags a quest tagjei közé tartozik
                     }).ToList();
                 }
                 if (difficulty != QuestDifficulty.None)
