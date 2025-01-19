@@ -50,9 +50,7 @@ public class QuestController : Controller
             {
                 Items = result,
                 TotalItems = totalItems,
-                TotalPages = (int)Math.Ceiling(totalItems / (double)(pageSize ?? totalItems)),
-                CurrentPage = pageNumber ?? 1,
-                PageSize = pageSize ?? totalItems
+                TotalPages = (int)Math.Ceiling(totalItems / (double)(pageSize ?? totalItems))
             };
 
             // Return the paginated result
