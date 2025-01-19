@@ -114,7 +114,7 @@ namespace devRoot.Server
                 if (!string.IsNullOrWhiteSpace(searchquery))
                 {
                     var normalizedSearch = RemoveDiacritics(searchquery);
-                    query = query.Where(q => RemoveDiacritics(q.Title).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase)).ToList();
+                    query = query.Where(q => RemoveDiacritics(q.Title).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase) || RemoveDiacritics(q.TaskDescription).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase)).ToList();
                 }
                 if (sorttags != null && sorttags.Count > 0)
                 {

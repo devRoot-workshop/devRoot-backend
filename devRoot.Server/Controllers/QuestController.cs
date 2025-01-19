@@ -16,33 +16,55 @@ public class QuestController : Controller
 
     [HttpGet]
     [Route("GetQuests")]
-    public List<QuestDto> GetQuests([FromQuery] int? PageNumber = null, [FromQuery] int? PageSize = null, [FromQuery] string? SearchQuery = null, [FromQuery] string? SortTags = null, [FromQuery] QuestDifficulty SortDifficulty = QuestDifficulty.None, [FromQuery] QuestLanguage SortLanguage = QuestLanguage.none)
+    public IActionResult GetQuests(
+        [FromQuery] int? pageNumber = null,
+        [FromQuery] int? pageSize = null,
+        [FromQuery] string? searchQuery = null,
+        [FromQuery] string? sortTags = null,
+        [FromQuery] QuestDifficulty sortDifficulty = QuestDifficulty.None,
+        [FromQuery] QuestLanguage sortLanguage = QuestLanguage.none)
     {
-        List<int> SortTagIds = new List<int>();
-        if (!string.IsNullOrEmpty(SortTags))
+        try
         {
-            foreach (string tagid in SortTags.Split(","))
+            // Parse sortTags into a list of integers
+            List<int>? sortTagIds = null;
+            if (!string.IsNullOrWhiteSpace(sortTags))
             {
-                SortTagIds.Add(Convert.ToInt32(tagid));
+                sortTagIds = sortTags.Split(',')
+                                     .Select(int.Parse)
+                                     .ToList();
             }
+
+            // Call the service layer to get the results
+            var result = _utils.GetQuests(pageNumber, pageSize, searchQuery, sortTagIds, sortDifficulty, sortLanguage);
+
+            var totalItems = result.Count();
+
+            // Check if the result is null (in case of errors or no data)
+            if (result == null || totalItems == 0)
+            {
+                return NotFound(new { message = "No quests found matching the criteria." });
+            }
+
+            var paginatedresult = new PaginatedResult<QuestDto>
+            {
+                Items = result,
+                TotalItems = totalItems,
+                TotalPages = (int)Math.Ceiling(totalItems / (double)(pageSize ?? totalItems)),
+                CurrentPage = pageNumber ?? 1,
+                PageSize = pageSize ?? totalItems
+            };
+
+            // Return the paginated result
+            return Ok(paginatedresult);
         }
-
-
-        return _utils.GetQuests(PageNumber, PageSize, SearchQuery, SortTagIds, SortDifficulty, SortLanguage);
+        catch (Exception ex)
+        {
+            // Log the exception if necessary
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while processing your request.", details = ex.Message });
+        }
     }
 
-    [HttpGet]
-    [Route("NumberOfPages")]
-    [FirebaseAuthorization]
-    public int NumberOfPages([FromQuery] int? PageSize = null)
-    {
-        int totalQuests = _utils.NumberOfQuests();
-        int pageSize = PageSize.HasValue && PageSize > 0 ? PageSize.Value : 10;
-        int numberOfPages = (int)Math.Ceiling((double)totalQuests / pageSize);
-
-
-        return numberOfPages;
-    }
 
 
     [HttpPost]
