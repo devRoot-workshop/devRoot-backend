@@ -9,8 +9,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Interfaces;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 internal class Program
 {
@@ -47,6 +50,8 @@ internal class Program
 
         builder.Services.AddSwaggerGen(config =>
         {
+            config.SchemaFilter<EnumSchemaFilter>();
+
             config.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
             {
                 Title = "devRoot ASP.NET Core REST API",
@@ -109,5 +114,17 @@ internal class Program
         app.MapControllers();
 
         app.Run();
+    }
+}
+
+public class EnumSchemaFilter : ISchemaFilter
+{
+    public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+    {
+        if (context.Type.IsEnum)
+        {
+            schema.Enum.Clear();
+            Enum.GetNames(context.Type).ToList().ForEach(name => schema.Enum.Add(new OpenApiString(name)));
+        }
     }
 }

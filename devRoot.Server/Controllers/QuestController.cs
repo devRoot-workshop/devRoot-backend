@@ -22,7 +22,9 @@ public class QuestController : Controller
         [FromQuery] string? searchQuery = null,
         [FromQuery] string? sortTags = null,
         [FromQuery] QuestDifficulty sortDifficulty = QuestDifficulty.None,
-        [FromQuery] QuestLanguage sortLanguage = QuestLanguage.none)
+        [FromQuery] QuestLanguage sortLanguage = QuestLanguage.none,
+        [FromQuery] OrderBy orderBy = OrderBy.None,
+        [FromQuery] OrderDirection orderDirection = OrderDirection.Ascending)
     {
         try
         {

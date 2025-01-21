@@ -87,7 +87,15 @@ namespace devRoot.Server
 
         #region Quest
 
-        public List<QuestDto> GetQuests(int? pagenumber = null, int? pagesize = null, string? searchquery = null, List<int>? sorttags = null, QuestDifficulty difficulty = QuestDifficulty.None, QuestLanguage language = QuestLanguage.none)
+        public List<QuestDto> GetQuests(
+            int? pagenumber = null,
+            int? pagesize = null,
+            string? searchquery = null,
+            List<int>? sorttags = null,
+            QuestDifficulty difficulty = QuestDifficulty.None,
+            QuestLanguage language = QuestLanguage.none,
+            OrderBy orderBy = OrderBy.None,
+            OrderDirection orderDirection = OrderDirection.Ascending)
         {
             try
             {
@@ -102,19 +110,19 @@ namespace devRoot.Server
                         Console = quest.Console,
                         Difficulty = quest.Difficulty,
                         Language = quest.Language,
-                        Tags = quest.Tags.Select(t => 
+                        Tags = quest.Tags.Select(t =>
                         new TagDto
                         {
                             Description = t.Description,
                             Id = t.Id,
                             Name = t.Name
                         }).ToList()
-                    }).ToList();
-                    
+                    });
+                
                 if (!string.IsNullOrWhiteSpace(searchquery))
                 {
                     var normalizedSearch = RemoveDiacritics(searchquery);
-                    query = query.Where(q => RemoveDiacritics(q.Title).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase) || RemoveDiacritics(q.TaskDescription).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase)).ToList();
+                    query = query.Where(q => RemoveDiacritics(q.Title).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase) || RemoveDiacritics(q.TaskDescription).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase));
                 }
                 if (sorttags != null && sorttags.Count > 0)
                 {
@@ -123,15 +131,39 @@ namespace devRoot.Server
                     {
                         var questTagIds = new HashSet<int>(q.Tags.Select(t => (int)t.Id));
                         return sortTagSet.IsSubsetOf(questTagIds); // Ellenőrizzük, hogy a sorttags a quest tagjei közé tartozik
-                    }).ToList();
+                    });
                 }
                 if (difficulty != QuestDifficulty.None)
                 {
-                    query = query.Where(q => q.Difficulty == difficulty).ToList();
+                    query = query.Where(q => q.Difficulty == difficulty);
                 }
                 if (language != QuestLanguage.none)
                 {
-                    query = query.Where(q => q.Language == language).ToList();
+                    query = query.Where(q => q.Language == language);
+                }
+                if (orderBy != OrderBy.None)
+                {
+                    Func<IEnumerable<QuestDto>, IOrderedEnumerable<QuestDto>> orderFunc = orderBy switch
+                    {
+                        OrderBy.Title => query => orderDirection == OrderDirection.Descending
+                            ? query.OrderByDescending(q => q.Title)
+                            : query.OrderBy(q => q.Title),
+                        OrderBy.Tags => query => orderDirection == OrderDirection.Descending
+                            ? query.OrderByDescending(q => q.Tags.Count())
+                            : query.OrderBy(q => q.Tags.Count()),
+                        OrderBy.Difficulty => query => orderDirection == OrderDirection.Descending
+                            ? query.OrderByDescending(q => q.Difficulty)
+                            : query.OrderBy(q => q.Difficulty),
+                        OrderBy.CreationDate => query => orderDirection == OrderDirection.Descending
+                            ? query.OrderByDescending(q => q.Created)
+                            : query.OrderBy(q => q.Created),
+                        _ => null
+                    };
+
+                    if (orderFunc != null)
+                    {
+                        query = orderFunc(query);
+                    }
                 }
 
                 if (pagenumber != null && pagesize != null)
@@ -142,17 +174,17 @@ namespace devRoot.Server
                         int _pagesize = pagesize ?? default(int);
                         return query.Skip((_pagenumber-1)*_pagesize).Take(_pagesize).ToList();
                     }
-                    return null;
+                    return new();
                 }
                 else
                 {
-                    return query;
+                    return query.ToList();
                 }
             }
             catch (Exception e)
             {
                 ExceptionHandler.Handle(e);
-                return null;
+                return new();
             }
         }
 
@@ -248,7 +280,7 @@ namespace devRoot.Server
             catch (Exception e)
             {
                 ExceptionHandler.Handle(e);
-                return null;
+                return new();
             }
         }
         
@@ -270,18 +302,20 @@ namespace devRoot.Server
                     Id = tag.Id,
                     Description = tag.Description,
                     Name = tag.Name,
-                }).ToList();
+                });
                 if (!String.IsNullOrEmpty(searchquery))
                 {
-                    query = query.Where(t => RemoveDiacritics(t.Name).Contains(RemoveDiacritics(searchquery), StringComparison.OrdinalIgnoreCase) || RemoveDiacritics(t.Description).Contains(RemoveDiacritics(searchquery), StringComparison.OrdinalIgnoreCase)).ToList();
+                    query = query.Where(t =>
+                    RemoveDiacritics(t.Name).Contains(RemoveDiacritics(searchquery), StringComparison.OrdinalIgnoreCase)
+                    || RemoveDiacritics(t.Description).Contains(RemoveDiacritics(searchquery), StringComparison.OrdinalIgnoreCase));
                 }
-                return query;
+                return query.ToList();
 
             }
             catch (Exception e)
             {
                 ExceptionHandler.Handle(e);
-                return null;
+                return new();
             }
         }
 
@@ -296,12 +330,12 @@ namespace devRoot.Server
                     Id = tag.Id,
                     Name = tag.Name,
                     QuestId = tag.Quests.Select(t => t.Id).ToList()
-                }).FirstOrDefault();
+                }).FirstOrDefault() ?? new();
             }
             catch (Exception e)
             {
                 ExceptionHandler.Handle(e);
-                return null;
+                return new();
             }
         }
 
@@ -380,7 +414,7 @@ namespace devRoot.Server
             }).ToList();
         }
 
-        public async Task CreateFillout(Fillout fillout)
+        public void CreateFillout(Fillout fillout)
         {
             _context.Fillouts.Add(fillout);
         }
