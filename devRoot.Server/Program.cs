@@ -1,5 +1,6 @@
 using System;
 using System.Reflection.Metadata;
+using System.Text.Json.Serialization;
 using devRoot.Server;
 using devRoot.Server.Auth;
 using FirebaseAdmin;
@@ -22,7 +23,10 @@ internal class Program
         const string myAllowSpecificOrigins = "_myAllowSpecificOrigins";
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Services.AddControllers();
+        builder.Services.AddControllers().AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        });
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddScoped<Utilites>();
@@ -50,7 +54,6 @@ internal class Program
 
         builder.Services.AddSwaggerGen(config =>
         {
-            config.SchemaFilter<EnumSchemaFilter>();
 
             config.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
             {
@@ -58,6 +61,8 @@ internal class Program
                 Description = "This is the Swagger documentation for the backend endpoints of the devRoot app",
                 Version = "v1"
             });
+
+            config.UseInlineDefinitionsForEnums();
 
             // Add the security definition for Bearer token
             config.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
@@ -114,17 +119,5 @@ internal class Program
         app.MapControllers();
 
         app.Run();
-    }
-}
-
-public class EnumSchemaFilter : ISchemaFilter
-{
-    public void Apply(OpenApiSchema schema, SchemaFilterContext context)
-    {
-        if (context.Type.IsEnum)
-        {
-            schema.Enum.Clear();
-            Enum.GetNames(context.Type).ToList().ForEach(name => schema.Enum.Add(new OpenApiString(name)));
-        }
     }
 }
