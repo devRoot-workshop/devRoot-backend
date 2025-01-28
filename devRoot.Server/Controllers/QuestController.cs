@@ -38,7 +38,7 @@ public class QuestController : Controller
             }
 
             // Call the service layer to get the results
-            var result = _utils.GetQuests(pageNumber, pageSize, searchQuery, sortTagIds, sortDifficulty, sortLanguage);
+            var result = _utils.GetQuests(pageNumber, pageSize, searchQuery, sortTagIds, sortDifficulty, sortLanguage, orderBy, orderDirection);
 
             var totalItems = result.Count();
 
