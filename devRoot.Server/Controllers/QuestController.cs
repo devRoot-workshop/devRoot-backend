@@ -43,16 +43,27 @@ public class QuestController : Controller
             var totalItems = result.Count();
 
             // Check if the result is null (in case of errors or no data)
+            //if (result == null || totalItems == 0)
+            //{
+            //    return NotFound(new { message = "No quests found matching the criteria." });
+            //}
+
+            int _totalpages;
+
             if (result == null || totalItems == 0)
             {
-                return NotFound(new { message = "No quests found matching the criteria." });
+                _totalpages = 0;
+            }
+            else
+            {
+                _totalpages = (int)Math.Ceiling(totalItems / (double)(pageSize ?? totalItems));
             }
 
             var paginatedresult = new PaginatedResult<QuestDto>
             {
                 Items = result,
                 TotalItems = totalItems,
-                TotalPages = (int)Math.Ceiling(totalItems / (double)(pageSize ?? totalItems))
+                TotalPages = _totalpages
             };
 
             // Return the paginated result
