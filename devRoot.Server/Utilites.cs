@@ -417,6 +417,7 @@ namespace devRoot.Server
         public void CreateFillout(Fillout fillout)
         {
             _context.Fillouts.Add(fillout);
+            _context.SaveChanges();
         }
 
         #endregion

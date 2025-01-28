@@ -1,4 +1,5 @@
-﻿using devRoot.Server.Models;
+﻿using devRoot.Server.Auth;
+using devRoot.Server.Models;
 using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -34,12 +35,13 @@ namespace devRoot.Server.Controllers
 
         [HttpPost]
         [Route("CreateFillout")]
-        public ActionResult CreateFillout([FromBody] FilloutDto dto)
+        [FirebaseAuthorization]
+        public ActionResult CreateFillout([FromBody] FilloutReq dto)
         {
             var firebaseToken = HttpContext.Items["User"] as FirebaseToken;
             Fillout fillout = new Fillout();
             fillout.FilloutTime = dto.FilloutTime;
-            fillout.CompletionTime = DateTime.Now;
+            fillout.CompletionTime = DateTime.Now.ToUniversalTime();
             fillout.SubmittedLanguage = dto.SubmittedLanguage;
             fillout.SubmittedCode = dto.SubmittedCode;
             fillout.QuestId = dto.QuestId;

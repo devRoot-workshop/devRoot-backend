@@ -5,11 +5,15 @@
         public string Uid { get; set; }
     }
 
-    public class FilloutDto
+    public class FilloutDto : FilloutReq
     {
-        public int Id { get; set; }
-        public int QuestId { get; set; }
         public DateTime CompletionTime { get; set; }
+        public int Id { get; set; }
+    }
+
+    public class FilloutReq
+    {
+        public int QuestId { get; set; }
         public TimeOnly FilloutTime { get; set; }
         public string SubmittedCode { get; set; }
         public QuestLanguage SubmittedLanguage { get; set; }
