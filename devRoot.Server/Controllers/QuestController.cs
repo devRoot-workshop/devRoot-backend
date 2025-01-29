@@ -28,53 +28,33 @@ public class QuestController : Controller
     {
         try
         {
-            // Parse sortTags into a list of integers
             List<int>? sortTagIds = null;
             if (!string.IsNullOrWhiteSpace(sortTags))
             {
-                sortTagIds = sortTags.Split(',')
-                                     .Select(int.Parse)
-                                     .ToList();
+                sortTagIds = sortTags.Split(',').Select(int.Parse).ToList();
             }
 
-            // Call the service layer to get the results
             var result = _utils.GetQuests(pageNumber, pageSize, searchQuery, sortTagIds, sortDifficulty, sortLanguage, orderBy, orderDirection);
 
-            var totalItems = result.Count();
+            int _totalPages = (pageSize != null && pageSize > 0)
+                ? (int)Math.Ceiling(result.TotalItems / (double)pageSize.Value)
+                : 1;
 
-            // Check if the result is null (in case of errors or no data)
-            //if (result == null || totalItems == 0)
-            //{
-            //    return NotFound(new { message = "No quests found matching the criteria." });
-            //}
-
-            int _totalpages;
-
-            if (result == null || totalItems == 0)
+            var paginatedResult = new PaginatedResult<QuestDto>
             {
-                _totalpages = 0;
-            }
-            else
-            {
-                _totalpages = (int)Math.Ceiling(totalItems / (double)(pageSize ?? totalItems));
-            }
-
-            var paginatedresult = new PaginatedResult<QuestDto>
-            {
-                Items = result,
-                TotalItems = totalItems,
-                TotalPages = _totalpages
+                Items = result.Quests,
+                TotalItems = result.TotalItems,
+                TotalPages = _totalPages
             };
 
-            // Return the paginated result
-            return Ok(paginatedresult);
+            return Ok(paginatedResult);
         }
         catch (Exception ex)
         {
-            // Log the exception if necessary
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while processing your request.", details = ex.Message });
         }
     }
+
 
 
 

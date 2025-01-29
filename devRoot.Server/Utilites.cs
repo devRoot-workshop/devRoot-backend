@@ -87,7 +87,13 @@ namespace devRoot.Server
 
         #region Quest
 
-        public List<QuestDto> GetQuests(
+        public class QuestResult
+        {
+            public int TotalItems { get; set; }
+            public List<QuestDto> Quests { get; set; } = new();
+        }
+
+        public QuestResult GetQuests(
             int? pagenumber = null,
             int? pagesize = null,
             string? searchquery = null,
@@ -99,8 +105,10 @@ namespace devRoot.Server
         {
             try
             {
-                var query = _context.Quests.Include(q => q.Tags).ToList().Select(quest =>
-                    new QuestDto
+                var query = _context.Quests
+                    .Include(q => q.Tags)
+                    .ToList()
+                    .Select(quest => new QuestDto
                     {
                         Id = quest.Id,
                         Created = quest.Created,
@@ -110,37 +118,42 @@ namespace devRoot.Server
                         Console = quest.Console,
                         Difficulty = quest.Difficulty,
                         Language = quest.Language,
-                        Tags = quest.Tags.Select(t =>
-                        new TagDto
+                        Tags = quest.Tags.Select(t => new TagDto
                         {
                             Description = t.Description,
                             Id = t.Id,
                             Name = t.Name
                         }).ToList()
                     });
-                
+
                 if (!string.IsNullOrWhiteSpace(searchquery))
                 {
                     var normalizedSearch = RemoveDiacritics(searchquery);
-                    query = query.Where(q => RemoveDiacritics(q.Title).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase) || RemoveDiacritics(q.TaskDescription).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase));
+                    query = query.Where(q => 
+                        RemoveDiacritics(q.Title).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase) ||
+                        RemoveDiacritics(q.TaskDescription).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase));
                 }
+
                 if (sorttags != null && sorttags.Count > 0)
                 {
-                    var sortTagSet = new HashSet<int>(sorttags); // Halmazba rendezés a gyors összehasonlításhoz
+                    var sortTagSet = new HashSet<int>(sorttags);
                     query = query.Where(q =>
                     {
                         var questTagIds = new HashSet<int>(q.Tags.Select(t => (int)t.Id));
-                        return sortTagSet.IsSubsetOf(questTagIds); // Ellenőrizzük, hogy a sorttags a quest tagjei közé tartozik
+                        return sortTagSet.IsSubsetOf(questTagIds);
                     });
                 }
+
                 if (difficulty != QuestDifficulty.None)
                 {
                     query = query.Where(q => q.Difficulty == difficulty);
                 }
+
                 if (language != QuestLanguage.none)
                 {
                     query = query.Where(q => q.Language == language);
                 }
+
                 if (orderBy != OrderBy.None)
                 {
                     Func<IEnumerable<QuestDto>, IOrderedEnumerable<QuestDto>> orderFunc = orderBy switch
@@ -166,27 +179,26 @@ namespace devRoot.Server
                     }
                 }
 
-                if (pagenumber != null && pagesize != null)
+                int totalItems = query.Count();
+
+                if (pagenumber != null && pagesize != null && pagenumber > 0 && pagesize > 0)
                 {
-                    if (pagenumber > 0 && pagesize > 0)
-                    {
-                        int _pagenumber = pagenumber ?? default(int);
-                        int _pagesize = pagesize ?? default(int);
-                        return query.Skip((_pagenumber-1)*_pagesize).Take(_pagesize).ToList();
-                    }
-                    return new();
+                    query = query.Skip((pagenumber.Value - 1) * pagesize.Value).Take(pagesize.Value);
                 }
-                else
+
+                return new QuestResult
                 {
-                    return query.ToList();
-                }
+                    TotalItems = totalItems,
+                    Quests = query.ToList()
+                };
             }
             catch (Exception e)
             {
                 ExceptionHandler.Handle(e);
-                return new();
+                return new QuestResult { TotalItems = 0, Quests = new List<QuestDto>() };
             }
         }
+
 
         public void RegisterQuest(QuestRequest questRequest)
         {
