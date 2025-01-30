@@ -5,6 +5,7 @@ public class QuestDto
     public int Id { get; set; }
     public string Title { get; set; }
     public string TaskDescription { get; set; }
+
     public string Code { get; set; }
     public string Console { get; set; }
     public QuestDifficulty Difficulty { get; set; }
