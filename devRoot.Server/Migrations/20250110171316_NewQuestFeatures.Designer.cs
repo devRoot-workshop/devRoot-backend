@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using devRoot.Server;
@@ -11,9 +12,11 @@ using devRoot.Server;
 namespace devRoot.Server.Migrations
 {
     [DbContext(typeof(devRootContext))]
-    partial class devRootContextModelSnapshot : ModelSnapshot
+    [Migration("20250110171316_NewQuestFeatures")]
+    partial class NewQuestFeatures
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,39 +40,6 @@ namespace devRoot.Server.Migrations
                     b.ToTable("QuestTagJoin");
                 });
 
-            modelBuilder.Entity("devRoot.Server.Models.Fillout", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CompletionTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<TimeOnly>("FilloutTime")
-                        .HasColumnType("time without time zone");
-
-                    b.Property<int>("QuestId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("SubmittedCode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("SubmittedLanguage")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Uid")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Fillouts");
-                });
-
             modelBuilder.Entity("devRoot.Server.Models.Quest", b =>
                 {
                     b.Property<int>("Id")
@@ -90,9 +60,6 @@ namespace devRoot.Server.Migrations
                         .HasColumnType("date");
 
                     b.Property<int>("Difficulty")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Language")
                         .HasColumnType("integer");
 
                     b.Property<string>("TaskDescription")

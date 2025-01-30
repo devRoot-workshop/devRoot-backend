@@ -16,15 +16,52 @@ public class QuestController : Controller
 
     [HttpGet]
     [Route("GetQuests")]
-    [FirebaseAuthorization]
-    public List<QuestDto> GetQuests([FromQuery] int? PageNumber = null, [FromQuery] int? PageSize = null)
+    public IActionResult GetQuests(
+        [FromQuery] int? pageNumber = null,
+        [FromQuery] int? pageSize = null,
+        [FromQuery] string? searchQuery = null,
+        [FromQuery] string? sortTags = null,
+        [FromQuery] QuestDifficulty sortDifficulty = QuestDifficulty.None,
+        [FromQuery] QuestLanguage sortLanguage = QuestLanguage.none,
+        [FromQuery] OrderBy orderBy = OrderBy.None,
+        [FromQuery] OrderDirection orderDirection = OrderDirection.Ascending)
     {
-        return _utils.GetQuests(PageNumber, PageSize);
+        try
+        {
+            List<int>? sortTagIds = null;
+            if (!string.IsNullOrWhiteSpace(sortTags))
+            {
+                sortTagIds = sortTags.Split(',').Select(int.Parse).ToList();
+            }
+
+            var result = _utils.GetQuests(pageNumber, pageSize, searchQuery, sortTagIds, sortDifficulty, sortLanguage, orderBy, orderDirection);
+
+            int _totalPages = (pageSize != null && pageSize > 0)
+                ? (int)Math.Ceiling(result.TotalItems / (double)pageSize.Value)
+                : 1;
+
+            var paginatedResult = new PaginatedResult<QuestDto>
+            {
+                Items = result.Quests,
+                TotalItems = result.TotalItems,
+                TotalPages = _totalPages
+            };
+
+            return Ok(paginatedResult);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while processing your request.", details = ex.Message });
+        }
     }
+
+
+
 
     [HttpPost]
     [Route("CreateQuest")]
     [FirebaseAuthorization]
+    [Authorize(Role.RoleType.QuestCreator)]
     public IActionResult CreateQuest([FromBody] QuestRequest req)
     {
         _utils.RegisterQuest(req);

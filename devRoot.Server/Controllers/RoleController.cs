@@ -1,4 +1,5 @@
-﻿using devRoot.Server.Models;
+﻿using devRoot.Server.Auth;
+using devRoot.Server.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace devRoot.Server.Controllers
@@ -16,9 +17,11 @@ namespace devRoot.Server.Controllers
         }
         [HttpGet]
         [Route("GetRoleTypes")]
-        public List<Role.RoleType> GetRoleTypes(string uid)
+        [FirebaseAuthorization]
+        public List<Role.RoleType> GetRoleTypes()
         {
-            return _utils.GetUserRoleTypes(uid);
+
+            return _utils.GetUserRoleTypes("asd");
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text;
+using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
 using devRoot.Server.Models;
@@ -71,50 +73,132 @@ namespace devRoot.Server
         }
         */
 
+
+        //used to ignore the difference btwn "í" and "i", "á" and "a" etc.
+        private static string RemoveDiacritics(string text)
+        {
+            return string.Concat(
+                text.Normalize(NormalizationForm.FormD)
+                    .Replace("\u0301", "")
+                    .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+            ).Normalize(NormalizationForm.FormC);
+        }
+
+
         #region Quest
 
-        public List<QuestDto> GetQuests(int? pagenumber = null, int? pagesize = null)
+        public class QuestResult
+        {
+            public int TotalItems { get; set; }
+            public List<QuestDto> Quests { get; set; } = new();
+        }
+
+        public QuestResult GetQuests(
+            int? pagenumber = null,
+            int? pagesize = null,
+            string? searchquery = null,
+            List<int>? sorttags = null,
+            QuestDifficulty difficulty = QuestDifficulty.None,
+            QuestLanguage language = QuestLanguage.none,
+            OrderBy orderBy = OrderBy.None,
+            OrderDirection orderDirection = OrderDirection.Ascending)
         {
             try
             {
-                List<Quest> quests = _context.Quests.Include(q => q.Tags).ToList();
-                var query = quests.Select(quest =>
-                    new QuestDto
+                var query = _context.Quests
+                    .Include(q => q.Tags)
+                    .ToList()
+                    .Select(quest => new QuestDto
                     {
                         Id = quest.Id,
                         Created = quest.Created,
                         TaskDescription = quest.TaskDescription,
                         Title = quest.Title,
-                        Tags = quest.Tags.Select(t => 
-                        new TagDto
+                        Code = quest.Code,
+                        Console = quest.Console,
+                        Difficulty = quest.Difficulty,
+                        Language = quest.Language,
+                        Tags = quest.Tags.Select(t => new TagDto
                         {
                             Description = t.Description,
                             Id = t.Id,
                             Name = t.Name
                         }).ToList()
-                    }).ToList();
+                    });
 
-                if (pagenumber != null && pagesize != null)
+                if (!string.IsNullOrWhiteSpace(searchquery))
                 {
-                    if (pagenumber > 0 && pagesize > 0)
+                    var normalizedSearch = RemoveDiacritics(searchquery);
+                    query = query.Where(q => 
+                        RemoveDiacritics(q.Title).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase) ||
+                        RemoveDiacritics(q.TaskDescription).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase));
+                }
+
+                if (sorttags != null && sorttags.Count > 0)
+                {
+                    var sortTagSet = new HashSet<int>(sorttags);
+                    query = query.Where(q =>
                     {
-                        int _pagenumber = pagenumber ?? default(int);
-                        int _pagesize = pagesize ?? default(int);
-                        return query.Skip((_pagenumber-1)*_pagesize).Take(_pagesize).ToList();
-                    }
-                    return null;
+                        var questTagIds = new HashSet<int>(q.Tags.Select(t => (int)t.Id));
+                        return sortTagSet.IsSubsetOf(questTagIds);
+                    });
                 }
-                else
+
+                if (difficulty != QuestDifficulty.None)
                 {
-                    return query;
+                    query = query.Where(q => q.Difficulty == difficulty);
                 }
+
+                if (language != QuestLanguage.none)
+                {
+                    query = query.Where(q => q.Language == language);
+                }
+
+                if (orderBy != OrderBy.None)
+                {
+                    Func<IEnumerable<QuestDto>, IOrderedEnumerable<QuestDto>> orderFunc = orderBy switch
+                    {
+                        OrderBy.Title => query => orderDirection == OrderDirection.Descending
+                            ? query.OrderByDescending(q => q.Title)
+                            : query.OrderBy(q => q.Title),
+                        OrderBy.Tags => query => orderDirection == OrderDirection.Descending
+                            ? query.OrderByDescending(q => q.Tags.Count())
+                            : query.OrderBy(q => q.Tags.Count()),
+                        OrderBy.Difficulty => query => orderDirection == OrderDirection.Descending
+                            ? query.OrderByDescending(q => q.Difficulty)
+                            : query.OrderBy(q => q.Difficulty),
+                        OrderBy.CreationDate => query => orderDirection == OrderDirection.Descending
+                            ? query.OrderByDescending(q => q.Created)
+                            : query.OrderBy(q => q.Created),
+                        _ => null
+                    };
+
+                    if (orderFunc != null)
+                    {
+                        query = orderFunc(query);
+                    }
+                }
+
+                int totalItems = query.Count();
+
+                if (pagenumber != null && pagesize != null && pagenumber > 0 && pagesize > 0)
+                {
+                    query = query.Skip((pagenumber.Value - 1) * pagesize.Value).Take(pagesize.Value);
+                }
+
+                return new QuestResult
+                {
+                    TotalItems = totalItems,
+                    Quests = query.ToList()
+                };
             }
             catch (Exception e)
             {
                 ExceptionHandler.Handle(e);
-                return null;
+                return new QuestResult { TotalItems = 0, Quests = new List<QuestDto>() };
             }
         }
+
 
         public void RegisterQuest(QuestRequest questRequest)
         {
@@ -125,8 +209,12 @@ namespace devRoot.Server
                 {
                     Title = questRequest.Title,
                     TaskDescription = questRequest.TaskDescription,
-                    Created = questRequest.Created,
-                    Tags = tags
+                    Tags = tags,
+                    Difficulty = questRequest.Difficulty,
+                    Created = DateOnly.FromDateTime(DateTime.Now),
+                    Code = questRequest.Code,
+                    Console = questRequest.Console,
+                    Language = questRequest.Language,
                 };
                 _context.Quests.Add(newQuest);
                 _context.SaveChanges();
@@ -187,6 +275,10 @@ namespace devRoot.Server
                     Title = q.Title,
                     Created = q.Created,
                     TaskDescription = q.TaskDescription,
+                    Code = q.Code,
+                    Console = q.Console,
+                    Difficulty = q.Difficulty,
+                    Language = q.Language,
                     Tags = q.Tags.Select(tag =>
                     new TagDto
                     {
@@ -200,28 +292,42 @@ namespace devRoot.Server
             catch (Exception e)
             {
                 ExceptionHandler.Handle(e);
-                return null;
+                return new();
             }
         }
         
         #endregion
         
-        public List<TagDto> GetTags()
+
+        public int NumberOfQuests()
+        {
+            return _context.Quests.Count();
+        }
+
+        public List<TagDto> GetTags(string? searchquery = null)
         {
             try
             {
-                return _context.Tags.Select(tag =>
+                var query = _context.Tags.Select(tag =>
                 new TagDto
                 {
                     Id = tag.Id,
                     Description = tag.Description,
                     Name = tag.Name,
-                }).ToList();
+                });
+                if (!String.IsNullOrEmpty(searchquery))
+                {
+                    query = query.Where(t =>
+                    RemoveDiacritics(t.Name).Contains(RemoveDiacritics(searchquery), StringComparison.OrdinalIgnoreCase)
+                    || RemoveDiacritics(t.Description).Contains(RemoveDiacritics(searchquery), StringComparison.OrdinalIgnoreCase));
+                }
+                return query.ToList();
+
             }
             catch (Exception e)
             {
                 ExceptionHandler.Handle(e);
-                return null;
+                return new();
             }
         }
 
@@ -236,12 +342,12 @@ namespace devRoot.Server
                     Id = tag.Id,
                     Name = tag.Name,
                     QuestId = tag.Quests.Select(t => t.Id).ToList()
-                }).FirstOrDefault();
+                }).FirstOrDefault() ?? new();
             }
             catch (Exception e)
             {
                 ExceptionHandler.Handle(e);
-                return null;
+                return new();
             }
         }
 
@@ -277,5 +383,55 @@ namespace devRoot.Server
                 ExceptionHandler.Handle(e);
             }
         }
+
+        #region Fillout
+
+        public List<FilloutDto> GetFillouts()
+        {
+            return _context.Fillouts.Select(f => new FilloutDto
+            {
+                Id = f.Id,
+                CompletionTime = f.CompletionTime,
+                SubmittedCode = f.SubmittedCode,
+                SubmittedLanguage = f.SubmittedLanguage,
+                FilloutTime = f.FilloutTime,
+                QuestId = f.QuestId,
+            }).ToList();
+        }
+
+        public FilloutDto GetFillout(int id)
+        {
+            return _context.Fillouts.Select(f => new FilloutDto
+            {
+                Id = f.Id,
+                CompletionTime = f.CompletionTime,
+                SubmittedCode = f.SubmittedCode,
+                SubmittedLanguage = f.SubmittedLanguage,
+                FilloutTime = f.FilloutTime,
+                QuestId = f.QuestId,
+            }).First(f => f.Id == id);
+        }
+
+
+        public List<FilloutDto> GetUserFillouts(string uid)
+        {
+            return _context.Fillouts.Where(f => f.Uid == uid).Select(f => new FilloutDto
+            {
+                Id = f.Id,
+                CompletionTime = f.CompletionTime,
+                SubmittedCode = f.SubmittedCode,
+                SubmittedLanguage = f.SubmittedLanguage,
+                FilloutTime = f.FilloutTime,
+                QuestId = f.QuestId,
+            }).ToList();
+        }
+
+        public void CreateFillout(Fillout fillout)
+        {
+            _context.Fillouts.Add(fillout);
+            _context.SaveChanges();
+        }
+
+        #endregion
     }
 }

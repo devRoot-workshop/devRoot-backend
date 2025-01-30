@@ -1,5 +1,6 @@
 using System;
 using System.Reflection.Metadata;
+using System.Text.Json.Serialization;
 using devRoot.Server;
 using devRoot.Server.Auth;
 using FirebaseAdmin;
@@ -9,8 +10,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Interfaces;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 internal class Program
 {
@@ -19,7 +23,10 @@ internal class Program
         const string myAllowSpecificOrigins = "_myAllowSpecificOrigins";
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Services.AddControllers();
+        builder.Services.AddControllers().AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        });
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddScoped<Utilites>();
@@ -39,8 +46,7 @@ internal class Program
             options.AddPolicy(name: myAllowSpecificOrigins,
                 policy =>
                 {
-                    policy.WithOrigins("http://localhost:3000",
-                            "http://127.0.0.1:3000")
+                    policy.AllowAnyOrigin()
                         .AllowAnyMethod()
                         .AllowAnyHeader();
                 });
@@ -48,12 +54,15 @@ internal class Program
 
         builder.Services.AddSwaggerGen(config =>
         {
+
             config.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
             {
                 Title = "devRoot ASP.NET Core REST API",
                 Description = "This is the Swagger documentation for the backend endpoints of the devRoot app",
                 Version = "v1"
             });
+
+            config.UseInlineDefinitionsForEnums();
 
             // Add the security definition for Bearer token
             config.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme

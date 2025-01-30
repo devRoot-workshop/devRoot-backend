@@ -369,6 +369,7 @@ FodyWeavers.xsd
 
 # Build artifacts
 /devRoot.Server/app/build
+/devRoot.Server/devRoot.json
 
 # Development postgres data
 development_postgres_data/

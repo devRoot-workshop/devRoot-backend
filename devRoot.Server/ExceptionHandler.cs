@@ -13,7 +13,7 @@ namespace devRoot.Server
             _logger = logger;    
         }
 
-        public static async Task Handle(Exception e)
+        public static void Handle(Exception e)
         {
             if (_logger != null)
             {

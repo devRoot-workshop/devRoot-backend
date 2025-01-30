@@ -16,9 +16,9 @@ namespace devRoot.Server.Controllers
 
         [HttpGet]
         [Route("GetTags")]
-        public async Task<List<TagDto>> GetTags()
+        public async Task<List<TagDto>> GetTags([FromQuery] string? searchquery = null)
         {
-            return _utils.GetTags();
+            return _utils.GetTags(searchquery);
         }
 
         [HttpGet]
