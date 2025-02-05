@@ -99,23 +99,23 @@ namespace devRoot.Server
         {
             try
             {
-                var query = _context.Quests.Include(q => q.Tags).ToList().Select(quest =>
+                var query = _context.Quests.Include(q => q.Tags).Include(q => q.ExampleCodes).ToList().Select(quest =>
                     new QuestDto
                     {
                         Id = quest.Id,
                         Created = quest.Created,
                         TaskDescription = quest.TaskDescription,
                         Title = quest.Title,
-                        Code = quest.Code,
+                        ExampleCodes = quest.ExampleCodes,
                         Console = quest.Console,
                         Difficulty = quest.Difficulty,
-                        Language = quest.Language,
+                        AvailableLanguages = quest.AvailableLanguages,
                         Tags = quest.Tags.Select(t =>
                         new TagDto
                         {
                             Description = t.Description,
                             Id = t.Id,
-                            Name = t.Name
+                            Name = t.Name ?? ""
                         }).ToList()
                     });
                 
@@ -139,7 +139,7 @@ namespace devRoot.Server
                 }
                 if (language != QuestLanguage.none)
                 {
-                    query = query.Where(q => q.Language == language);
+                    query = query.Where(q => q.AvailableLanguages.Contains(language));
                 }
                 if (orderBy != OrderBy.None)
                 {
@@ -200,9 +200,9 @@ namespace devRoot.Server
                     Tags = tags,
                     Difficulty = questRequest.Difficulty,
                     Created = DateOnly.FromDateTime(DateTime.Now),
-                    Code = questRequest.Code,
+                    ExampleCodes = questRequest.ExampleCodes,
                     Console = questRequest.Console,
-                    Language = questRequest.Language,
+                    AvailableLanguages = questRequest.AvailableLanguages,
                 };
                 _context.Quests.Add(newQuest);
                 _context.SaveChanges();
@@ -263,10 +263,10 @@ namespace devRoot.Server
                     Title = q.Title,
                     Created = q.Created,
                     TaskDescription = q.TaskDescription,
-                    Code = q.Code,
+                    ExampleCodes = q.ExampleCodes,
                     Console = q.Console,
                     Difficulty = q.Difficulty,
-                    Language = q.Language,
+                    AvailableLanguages = q.AvailableLanguages,
                     Tags = q.Tags.Select(tag =>
                     new TagDto
                     {

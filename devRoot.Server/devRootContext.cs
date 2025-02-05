@@ -9,7 +9,8 @@ namespace devRoot.Server
         public DbSet<Tag>? Tags { get; set; }
         public DbSet<Quest>? Quests { get; set; }
         public DbSet<Role>? Roles { get; set; }
-        public DbSet<Fillout> Fillouts { get; set; }
+        public DbSet<Fillout>? Fillouts { get; set; }
+        public DbSet<ExampleCode>? ExampleCodes {  get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,6 +26,8 @@ namespace devRoot.Server
                 .HasMany(q => q.Tags)
                 .WithMany(q => q.Quests)
                 .UsingEntity("QuestTagJoin");
+
+            modelBuilder.Entity<ExampleCode>().Property(k => k.Id).ValueGeneratedOnAdd();
         }
     }
 }
