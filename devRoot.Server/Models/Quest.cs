@@ -19,6 +19,7 @@ public class Quest : BaseQuest
     public int Id { get; set; }
     public List<Tag> Tags { get; set; }
     public DateOnly Created { get; set; }
+    public List<ExampleCode>? ExampleCodes { get; set; }
 }
 
 public class BaseQuest
@@ -26,7 +27,6 @@ public class BaseQuest
     public QuestDifficulty Difficulty { get; set; }
     public string? Title { get; set; }
     public string? TaskDescription { get; set; }
-    public List<ExampleCode>? ExampleCodes { get; set; }
     public string? Console { get; set; }
     public List<QuestLanguage>? AvailableLanguages { get; set; }
 }
@@ -34,6 +34,7 @@ public class BaseQuest
 public class QuestRequest : BaseQuest
 {
     public List<int> TagId { get; set; } = new();
+    public List<ExampleCodeRequest>? ExampleCodes { get; set; }
 }
 
 public enum QuestDifficulty

@@ -80,8 +80,6 @@ public class QuestController : Controller
 
     [HttpPost]
     [Route("CreateQuest")]
-    [FirebaseAuthorization]
-    [Authorize(Role.RoleType.QuestCreator)]
     public IActionResult CreateQuest([FromBody] QuestRequest req)
     {
         _utils.RegisterQuest(req);

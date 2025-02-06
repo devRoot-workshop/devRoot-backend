@@ -200,7 +200,10 @@ namespace devRoot.Server
                     Tags = tags,
                     Difficulty = questRequest.Difficulty,
                     Created = DateOnly.FromDateTime(DateTime.Now),
-                    ExampleCodes = questRequest.ExampleCodes,
+                    ExampleCodes = questRequest?.ExampleCodes?.Select(excode =>
+                    new ExampleCode {
+                        Code = excode.Code,
+                        Language = excode.Language }).ToList(),
                     Console = questRequest.Console,
                     AvailableLanguages = questRequest.AvailableLanguages,
                 };
