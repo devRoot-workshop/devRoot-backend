@@ -87,11 +87,11 @@ namespace devRoot.Server
 
         #region Quest
 
-        public List<QuestDto> GetQuests(
-            int? pagenumber = null,
-            int? pagesize = null,
-            string? searchquery = null,
-            List<int>? sorttags = null,
+        public PaginatedResult<QuestDto> GetQuests(
+            int? pageNumber = null,
+            int? pageSize = null,
+            string? searchQuery = null,
+            List<int>? sortTags = null,
             QuestDifficulty difficulty = QuestDifficulty.None,
             QuestLanguage language = QuestLanguage.none,
             OrderBy orderBy = OrderBy.None,
@@ -99,38 +99,36 @@ namespace devRoot.Server
         {
             try
             {
-                var query = _context.Quests.Include(q => q.Tags).Include(q => q.ExampleCodes).ToList().Select(quest =>
-                    new QuestDto
+                var query = _context.Quests.Include(q => q.Tags).Include(q => q.ExampleCodes).ToList().Select(quest => new QuestDto
+                {
+                    Id = quest.Id,
+                    Created = quest.Created,
+                    TaskDescription = quest.TaskDescription,
+                    Title = quest.Title,
+                    ExampleCodes = quest.ExampleCodes,
+                    Console = quest.Console,
+                    Difficulty = quest.Difficulty,
+                    AvailableLanguages = quest.AvailableLanguages,
+                    Tags = quest.Tags.Select(t => new TagDto
                     {
-                        Id = quest.Id,
-                        Created = quest.Created,
-                        TaskDescription = quest.TaskDescription,
-                        Title = quest.Title,
-                        ExampleCodes = quest.ExampleCodes,
-                        Console = quest.Console,
-                        Difficulty = quest.Difficulty,
-                        AvailableLanguages = quest.AvailableLanguages,
-                        Tags = quest.Tags.Select(t =>
-                        new TagDto
-                        {
-                            Description = t.Description,
-                            Id = t.Id,
-                            Name = t.Name ?? ""
-                        }).ToList()
-                    });
-                
-                if (!string.IsNullOrWhiteSpace(searchquery))
+                        Description = t.Description,
+                        Id = t.Id,
+                        Name = t.Name ?? ""
+                    }).ToList()
+                });
+                if (!string.IsNullOrWhiteSpace(searchQuery))
                 {
-                    var normalizedSearch = RemoveDiacritics(searchquery);
-                    query = query.Where(q => RemoveDiacritics(q.Title).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase) || RemoveDiacritics(q.TaskDescription).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase));
+                    var normalizedSearch = RemoveDiacritics(searchQuery);
+                    query = query.Where(q => RemoveDiacritics(q.Title).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase) ||
+                                            RemoveDiacritics(q.TaskDescription).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase));
                 }
-                if (sorttags != null && sorttags.Count > 0)
+                if (sortTags != null && sortTags.Count > 0)
                 {
-                    var sortTagSet = new HashSet<int>(sorttags); // Halmazba rendezés a gyors összehasonlításhoz
+                    var sortTagSet = new HashSet<int>(sortTags);
                     query = query.Where(q =>
                     {
                         var questTagIds = new HashSet<int>(q.Tags.Select(t => (int)t.Id));
-                        return sortTagSet.IsSubsetOf(questTagIds); // Ellenőrizzük, hogy a sorttags a quest tagjei közé tartozik
+                        return sortTagSet.IsSubsetOf(questTagIds);
                     });
                 }
                 if (difficulty != QuestDifficulty.None)
@@ -145,48 +143,47 @@ namespace devRoot.Server
                 {
                     Func<IEnumerable<QuestDto>, IOrderedEnumerable<QuestDto>> orderFunc = orderBy switch
                     {
-                        OrderBy.Title => query => orderDirection == OrderDirection.Descending
-                            ? query.OrderByDescending(q => q.Title)
-                            : query.OrderBy(q => q.Title),
-                        OrderBy.Tags => query => orderDirection == OrderDirection.Descending
-                            ? query.OrderByDescending(q => q.Tags.Count())
-                            : query.OrderBy(q => q.Tags.Count()),
-                        OrderBy.Difficulty => query => orderDirection == OrderDirection.Descending
-                            ? query.OrderByDescending(q => q.Difficulty)
-                            : query.OrderBy(q => q.Difficulty),
-                        OrderBy.CreationDate => query => orderDirection == OrderDirection.Descending
-                            ? query.OrderByDescending(q => q.Created)
-                            : query.OrderBy(q => q.Created),
+                        OrderBy.Title => q => orderDirection == OrderDirection.Descending ? q.OrderByDescending(quest => quest.Title) : q.OrderBy(quest => quest.Title),
+                        OrderBy.Tags => q => orderDirection == OrderDirection.Descending ? q.OrderByDescending(quest => quest.Tags.Count()) : q.OrderBy(quest => quest.Tags.Count()),
+                        OrderBy.Difficulty => q => orderDirection == OrderDirection.Descending ? q.OrderByDescending(quest => quest.Difficulty) : q.OrderBy(quest => quest.Difficulty),
+                        OrderBy.CreationDate => q => orderDirection == OrderDirection.Descending ? q.OrderByDescending(quest => quest.Created) : q.OrderBy(quest => quest.Created),
                         _ => null
                     };
-
                     if (orderFunc != null)
                     {
                         query = orderFunc(query);
                     }
                 }
-
-                if (pagenumber != null && pagesize != null)
+                int totalItems = query.Count();
+                List<QuestDto> items;
+                if (pageNumber != null && pageSize != null && pageNumber > 0 && pageSize > 0)
                 {
-                    if (pagenumber > 0 && pagesize > 0)
-                    {
-                        int _pagenumber = pagenumber ?? default(int);
-                        int _pagesize = pagesize ?? default(int);
-                        return query.Skip((_pagenumber-1)*_pagesize).Take(_pagesize).ToList();
-                    }
-                    return new();
+                    items = query.Skip((pageNumber.Value - 1) * pageSize.Value).Take(pageSize.Value).ToList();
                 }
                 else
                 {
-                    return query.ToList();
+                    items = query.ToList();
                 }
+                int totalPages = pageSize != null && pageSize > 0 ? (int)Math.Ceiling(totalItems / (double)pageSize.Value) : 1;
+                return new PaginatedResult<QuestDto>
+                {
+                    Items = items,
+                    TotalItems = totalItems,
+                    TotalPages = totalPages
+                };
             }
             catch (Exception e)
             {
                 ExceptionHandler.Handle(e);
-                return new();
+                return new PaginatedResult<QuestDto>
+                {
+                    Items = new List<QuestDto>(),
+                    TotalItems = 0,
+                    TotalPages = 0
+                };
             }
         }
+
 
         public void RegisterQuest(QuestRequest questRequest)
         {
