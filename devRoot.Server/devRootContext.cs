@@ -11,6 +11,7 @@ namespace devRoot.Server
         public DbSet<Role>? Roles { get; set; }
         public DbSet<Fillout>? Fillouts { get; set; }
         public DbSet<ExampleCode>? ExampleCodes {  get; set; }
+        public DbSet<Vote>? Votes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -20,6 +21,8 @@ namespace devRoot.Server
             modelBuilder.Entity<Quest>().Property(k => k.Id).ValueGeneratedOnAdd();
             modelBuilder.Entity<Role>().Property(k => k.Id).ValueGeneratedOnAdd();
             modelBuilder.Entity<Fillout>().Property(k => k.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Vote>().HasNoKey()
+                .HasIndex(v => new { v.For, v.Id });
 
             //many to many
             modelBuilder.Entity<Quest>()

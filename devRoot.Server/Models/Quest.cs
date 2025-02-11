@@ -11,6 +11,8 @@ public class QuestDto
     public List<QuestLanguage>? AvailableLanguages { get; set; }
     public DateOnly Created { get; set; }
     public List<TagDto>? Tags { get; set; }
+    public int Upvotes { get; set; }
+    public int Downvotes { get; set; }
 }
 
 

@@ -99,7 +99,8 @@ namespace devRoot.Server
         {
             try
             {
-                var query = _context.Quests.Include(q => q.Tags).Include(q => q.ExampleCodes).ToList().Select(quest =>
+                var votes = _context.Votes;
+                var query = _context.Quests.Include(q => q.Tags).Include(q => q.ExampleCodes).Select(quest =>
                     new QuestDto
                     {
                         Id = quest.Id,
@@ -116,7 +117,9 @@ namespace devRoot.Server
                             Description = t.Description,
                             Id = t.Id,
                             Name = t.Name ?? ""
-                        }).ToList()
+                        }).ToList(),
+                        Upvotes = votes.Count(v => v.For == VoteFor.Quest && v.Id == quest.Id && v.Type == VoteType.UpVote),
+                        Downvotes = votes.Count(v => v.For == VoteFor.Quest && v.Id == quest.Id && v.Type == VoteType.DownVote)
                     });
                 
                 if (!string.IsNullOrWhiteSpace(searchquery))
@@ -126,12 +129,8 @@ namespace devRoot.Server
                 }
                 if (sorttags != null && sorttags.Count > 0)
                 {
-                    var sortTagSet = new HashSet<int>(sorttags); // Halmazba rendezés a gyors összehasonlításhoz
-                    query = query.Where(q =>
-                    {
-                        var questTagIds = new HashSet<int>(q.Tags.Select(t => (int)t.Id));
-                        return sortTagSet.IsSubsetOf(questTagIds); // Ellenőrizzük, hogy a sorttags a quest tagjei közé tartozik
-                    });
+                    List<int> sortTagSet = new List<int>(sorttags);
+                    query = query.Where(q => !sortTagSet.Except(q.Tags.Select(t => t.Id)).Any());
                 }
                 if (difficulty != QuestDifficulty.None)
                 {
@@ -143,7 +142,7 @@ namespace devRoot.Server
                 }
                 if (orderBy != OrderBy.None)
                 {
-                    Func<IEnumerable<QuestDto>, IOrderedEnumerable<QuestDto>> orderFunc = orderBy switch
+                    Func<IQueryable<QuestDto>, IQueryable<QuestDto>> orderFunc = orderBy switch
                     {
                         OrderBy.Title => query => orderDirection == OrderDirection.Descending
                             ? query.OrderByDescending(q => q.Title)
@@ -186,6 +185,21 @@ namespace devRoot.Server
                 ExceptionHandler.Handle(e);
                 return new();
             }
+        }
+
+        public void RegisterVote(Vote req)
+        {
+            Vote uservote = _context.Votes.Where(v => v.Uid == req.Uid && v.For == req.For).First();
+            if (uservote is not null)
+            {
+                uservote.Type = req.Type;
+            }
+            else
+            {
+                _context.Votes.Add(req);
+            }
+            _context.SaveChanges();
+
         }
 
         public void RegisterQuest(QuestRequest questRequest)
