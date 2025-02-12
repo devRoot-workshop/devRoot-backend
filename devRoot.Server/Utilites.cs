@@ -294,7 +294,7 @@ namespace devRoot.Server
                         Name = tag.Name,
                     }).ToList(),
                     Upvotes = votes.Count(v => v.For == VoteFor.Quest && v.Id == q.Id && v.Type == VoteType.UpVote),
-                    Downvotes = votes.Count(v => v.For == VoteFor.Quest && v.Id == q.Id && v.Type == VoteType.UpVote)
+                    Downvotes = votes.Count(v => v.For == VoteFor.Quest && v.Id == q.Id && v.Type == VoteType.DownVote)
 
                 }).First(q => q.Id == id);
             }
