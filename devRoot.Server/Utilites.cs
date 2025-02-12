@@ -188,8 +188,7 @@ namespace devRoot.Server
 
         public void RegisterVote(Vote req)
         {
-            var uservote = _context.Votes.FirstOrDefault(v => v.Uid == req.Uid && v.For == req.For);
-            var a = 0;
+            var uservote = _context.Votes.FirstOrDefault(v => v.Uid == req.Uid && v.For == req.For && req.Id == v.Id);
             if (uservote != null)
             {
                 uservote.Type = req.Type;
