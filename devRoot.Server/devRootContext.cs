@@ -21,8 +21,7 @@ namespace devRoot.Server
             modelBuilder.Entity<Quest>().Property(k => k.Id).ValueGeneratedOnAdd();
             modelBuilder.Entity<Role>().Property(k => k.Id).ValueGeneratedOnAdd();
             modelBuilder.Entity<Fillout>().Property(k => k.Id).ValueGeneratedOnAdd();
-            modelBuilder.Entity<Vote>().HasNoKey()
-                .HasIndex(v => new { v.For, v.Id });
+            modelBuilder.Entity<Vote>().Property(k => k.Id).ValueGeneratedOnAdd();
 
             //many to many
             modelBuilder.Entity<Quest>()

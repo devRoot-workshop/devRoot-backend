@@ -122,7 +122,7 @@ namespace devRoot.Server
                         Downvotes = votes.Count(v => v.For == VoteFor.Quest && v.Id == quest.Id && v.Type == VoteType.DownVote)
                     });
                 
-                if (!string.IsNullOrWhiteSpace(searchquery))
+                if (!string.IsNullOrWhiteSpace(searchQuery))
                 {
                     var normalizedSearch = RemoveDiacritics(searchQuery);
                     query = query.Where(q => RemoveDiacritics(q.Title).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase) ||
@@ -130,7 +130,7 @@ namespace devRoot.Server
                 }
                 if (sortTags != null && sortTags.Count > 0)
                 {
-                    List<int> sortTagSet = new List<int>(sorttags);
+                    List<int> sortTagSet = new List<int>(sortTags);
                     query = query.Where(q => !sortTagSet.Except(q.Tags.Select(t => t.Id)).Any());
                 }
                 if (difficulty != QuestDifficulty.None)
@@ -188,8 +188,9 @@ namespace devRoot.Server
 
         public void RegisterVote(Vote req)
         {
-            Vote uservote = _context.Votes.Where(v => v.Uid == req.Uid && v.For == req.For).First();
-            if (uservote is not null)
+            var uservote = _context.Votes.FirstOrDefault(v => v.Uid == req.Uid && v.For == req.For);
+            var a = 0;
+            if (uservote != null)
             {
                 uservote.Type = req.Type;
             }
