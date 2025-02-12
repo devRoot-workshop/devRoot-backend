@@ -220,7 +220,7 @@ namespace devRoot.Server
                         Code = excode.Code,
                         Language = excode.Language }).ToList(),
                     Console = questRequest.Console,
-                    AvailableLanguages = questRequest.AvailableLanguages,
+                    AvailableLanguages = questRequest.AvailableLanguages,              
                 };
                 _context.Quests.Add(newQuest);
                 _context.SaveChanges();
@@ -274,6 +274,7 @@ namespace devRoot.Server
         {
             try
             {
+                var votes = _context.Votes;
                 return _context.Quests.Include(q => q.Tags).Select(q =>
                 new QuestDto
                 {
@@ -291,7 +292,9 @@ namespace devRoot.Server
                         Id = tag.Id,
                         Description = tag.Description,
                         Name = tag.Name,
-                    }).ToList()
+                    }).ToList(),
+                    Upvotes = votes.Count(v => v.For == VoteFor.Quest && v.Id == q.Id && v.Type == VoteType.UpVote),
+                    Downvotes = votes.Count(v => v.For == VoteFor.Quest && v.Id == q.Id && v.Type == VoteType.UpVote)
 
                 }).First(q => q.Id == id);
             }
