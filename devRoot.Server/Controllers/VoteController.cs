@@ -27,7 +27,7 @@ namespace devRoot.Server.Controllers
                 {
                     For = voteReq.For,
                     Type = voteReq.Type,
-                    Id = voteReq.Id,
+                    VoteId = voteReq.VoteId,
                     Uid = firebaseToken?.Uid
                 };
                 _utils.RegisterVote(vote);

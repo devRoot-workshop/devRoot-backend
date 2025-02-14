@@ -1,6 +1,7 @@
 using devRoot.Server.Models;
 using Microsoft.AspNetCore.Mvc;
 using devRoot.Server.Auth;
+using FirebaseAdmin.Auth;
 
 namespace devRoot.Server.Controllers;
 
@@ -28,6 +29,7 @@ public class QuestController : Controller
     {
         try
         {
+            var firebaseToken = HttpContext.Items["User"] as FirebaseToken;
             List<int>? sortTagIds = null;
             if (!string.IsNullOrWhiteSpace(sortTags))
             {
@@ -55,9 +57,18 @@ public class QuestController : Controller
 
     [HttpGet]
     [Route("{id}/GetQuest")]
-    public QuestDto GetQuest([FromRoute] int id)
+    [FirebaseAuthorization]
+    public IActionResult GetQuest([FromRoute] int id)
     {
-        return _utils.GetQuest(id);
+        var firebaseToken = HttpContext.Items["User"] as FirebaseToken;
+        var vote = _utils.GetUserVotes(firebaseToken.Uid.ToString(), VoteFor.Quest, id).FirstOrDefault();
+        VotedResult<QuestDto> result = new VotedResult<QuestDto>()
+        {
+            Value = _utils.GetQuest(id),
+            VoteType = vote != null ? vote.Type : VoteType.None
+        };
+
+        return Ok(result); 
     }
 
     [HttpPatch]

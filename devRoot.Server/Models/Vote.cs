@@ -2,6 +2,7 @@
 {
     public enum VoteType
     {
+        None,
         UpVote,
         DownVote,
     }
@@ -21,6 +22,6 @@
     {
         public VoteType Type { get; set; }
         public VoteFor For { get; set; }
-        public int Id { get; set; }
+        public int VoteId { get; set; }
     }
 }

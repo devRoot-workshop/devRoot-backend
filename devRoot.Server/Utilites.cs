@@ -118,8 +118,9 @@ namespace devRoot.Server
                             Id = t.Id,
                             Name = t.Name ?? ""
                         }).ToList(),
-                        Upvotes = votes.Count(v => v.For == VoteFor.Quest && v.Id == quest.Id && v.Type == VoteType.UpVote),
-                        Downvotes = votes.Count(v => v.For == VoteFor.Quest && v.Id == quest.Id && v.Type == VoteType.DownVote)
+                        Votes = votes
+                            .Where(v => v.For == VoteFor.Quest && v.Id == quest.Id)
+                            .Sum(v => v.Type == VoteType.UpVote ? 1 : v.Type == VoteType.DownVote ? -1 : 0)
                     });
                 
                 if (!string.IsNullOrWhiteSpace(searchQuery))
@@ -201,6 +202,15 @@ namespace devRoot.Server
 
         }
 
+        public List<Vote> GetUserVotes(string uid, VoteFor? votefor = null, int? voteid = null)
+        {
+            return _context.Votes
+                .Where(v => v.Uid == uid &&
+                           (voteid == null || v.VoteId == voteid) &&
+                           (votefor == null || v.For == votefor))
+                .ToList();
+        }
+
 
         public void RegisterQuest(QuestRequest questRequest)
         {
@@ -274,26 +284,27 @@ namespace devRoot.Server
             try
             {
                 var votes = _context.Votes;
-                return _context.Quests.Include(q => q.Tags).Select(q =>
+                return _context.Quests.Include(q => q.Tags).Select(quest =>
                 new QuestDto
                 {
-                    Id = q.Id,
-                    Title = q.Title,
-                    Created = q.Created,
-                    TaskDescription = q.TaskDescription,
-                    ExampleCodes = q.ExampleCodes,
-                    Console = q.Console,
-                    Difficulty = q.Difficulty,
-                    AvailableLanguages = q.AvailableLanguages,
-                    Tags = q.Tags.Select(tag =>
+                    Id = quest.Id,
+                    Title = quest.Title,
+                    Created = quest.Created,
+                    TaskDescription = quest.TaskDescription,
+                    ExampleCodes = quest.ExampleCodes,
+                    Console = quest.Console,
+                    Difficulty = quest.Difficulty,
+                    AvailableLanguages = quest.AvailableLanguages,
+                    Tags = quest.Tags.Select(tag =>
                     new TagDto
                     {
                         Id = tag.Id,
                         Description = tag.Description,
                         Name = tag.Name,
                     }).ToList(),
-                    Upvotes = votes.Count(v => v.For == VoteFor.Quest && v.Id == q.Id && v.Type == VoteType.UpVote),
-                    Downvotes = votes.Count(v => v.For == VoteFor.Quest && v.Id == q.Id && v.Type == VoteType.DownVote)
+                    Votes = votes
+                            .Where(v => v.For == VoteFor.Quest && v.Id == quest.Id)
+                            .Sum(v => v.Type == VoteType.UpVote ? 1 : v.Type == VoteType.DownVote ? -1 : 0)
 
                 }).First(q => q.Id == id);
             }
