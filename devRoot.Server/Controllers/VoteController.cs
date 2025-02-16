@@ -17,7 +17,7 @@ namespace devRoot.Server.Controllers
 
         [HttpPost]
         [Route("Vote")]
-        [FirebaseAuthorization]
+        [FirebaseAuthorization(AuthorizationMode.Mandatory)]
         public IActionResult Vote([FromBody] VoteReq voteReq)
         {
             try
@@ -37,6 +37,26 @@ namespace devRoot.Server.Controllers
                 
             }
             return Ok();
+        }
+
+        [HttpGet]
+        [Route("GetUserVotes")]
+        [FirebaseAuthorization(AuthorizationMode.Mandatory)]
+        public IActionResult GetUserVotes(
+            [FromQuery] VoteFor? For = null,
+            [FromQuery] int? VoteId = null)
+        {
+            try
+            {
+                var firebaseToken = HttpContext.Items["User"] as FirebaseToken;
+                var result = _utils.GetUserVotes(firebaseToken.Uid.ToString(), For, VoteId);
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                return Ok();
+            }
+            
         }
     }
 }

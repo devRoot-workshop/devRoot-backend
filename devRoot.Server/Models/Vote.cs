@@ -18,6 +18,11 @@
         public string? Uid { get; set; }
     }
 
+    public class VoteDto : VoteReq
+    {
+
+    }
+
     public class VoteReq
     {
         public VoteType Type { get; set; }

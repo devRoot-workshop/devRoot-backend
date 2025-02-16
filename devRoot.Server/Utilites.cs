@@ -202,13 +202,18 @@ namespace devRoot.Server
 
         }
 
-        public List<Vote> GetUserVotes(string uid, VoteFor? votefor = null, int? voteid = null)
+        public List<VoteDto> GetUserVotes(string? uid = null, VoteFor? votefor = null, int? voteid = null)
         {
             return _context.Votes
-                .Where(v => v.Uid == uid &&
+                .Where(v => (uid == null || v.Uid == uid) &&
                            (voteid == null || v.VoteId == voteid) &&
                            (votefor == null || v.For == votefor))
-                .ToList();
+                .Select(v => new VoteDto
+                {
+                    For = v.For,
+                    Type = v.Type,
+                    VoteId = v.VoteId,
+                }).ToList();
         }
 
 

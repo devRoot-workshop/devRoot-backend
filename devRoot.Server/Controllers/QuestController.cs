@@ -57,18 +57,25 @@ public class QuestController : Controller
 
     [HttpGet]
     [Route("{id}/GetQuest")]
-    [FirebaseAuthorization]
+    [FirebaseAuthorization(AuthorizationMode.Optional)]
     public IActionResult GetQuest([FromRoute] int id)
     {
         var firebaseToken = HttpContext.Items["User"] as FirebaseToken;
-        var vote = _utils.GetUserVotes(firebaseToken.Uid.ToString(), VoteFor.Quest, id).FirstOrDefault();
-        VotedResult<QuestDto> result = new VotedResult<QuestDto>()
+        if (firebaseToken is not null)
         {
-            Value = _utils.GetQuest(id),
-            VoteType = vote != null ? vote.Type : VoteType.None
-        };
-
-        return Ok(result); 
+            var vote = _utils.GetUserVotes(firebaseToken.Uid.ToString(), VoteFor.Quest, id).FirstOrDefault();
+            VotedResult<QuestDto> result = new VotedResult<QuestDto>()
+            {
+                Value = _utils.GetQuest(id),
+                VoteType = vote != null ? vote.Type : VoteType.None
+            };
+            return Ok(result);
+        }
+        else
+        {
+            QuestDto result = _utils.GetQuest(id);
+            return Ok(result);
+        }
     }
 
     [HttpPatch]
