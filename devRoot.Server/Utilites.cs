@@ -308,7 +308,7 @@ namespace devRoot.Server
                         Name = tag.Name,
                     }).ToList(),
                     Votes = votes
-                            .Where(v => v.For == VoteFor.Quest && v.Id == quest.Id)
+                            .Where(v => v.For == VoteFor.Quest && v.VoteId == quest.Id)
                             .Sum(v => v.Type == VoteType.UpVote ? 1 : v.Type == VoteType.DownVote ? -1 : 0)
 
                 }).First(q => q.Id == id);

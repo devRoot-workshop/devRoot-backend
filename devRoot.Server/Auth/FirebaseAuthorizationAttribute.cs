@@ -69,7 +69,7 @@ namespace devRoot.Server.Auth
                             }
                             else
                             {
-                                context.Result = new OkResult();
+                                return;
                             }
                         }
                     }
