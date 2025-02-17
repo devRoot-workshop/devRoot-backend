@@ -17,9 +17,9 @@ namespace devRoot.Server.Controllers
             _utils = utils;
         }
         [HttpGet]
-        [Route("GetRoleTypes")]
+        [Route("GetUserRoleTypes")]
         [FirebaseAuthorization(AuthorizationMode.Mandatory)]
-        public List<Role.RoleType> GetRoleTypes()
+        public List<Role.RoleType> GetUserRoleTypes()
         {
             var firebaseToken = HttpContext.Items["User"] as FirebaseToken;
             return _utils.GetUserRoleTypes(firebaseToken.Uid.ToString());

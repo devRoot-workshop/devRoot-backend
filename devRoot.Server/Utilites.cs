@@ -34,7 +34,7 @@ namespace devRoot.Server
         #region Role
         public List<Role.RoleType> GetUserRoleTypes(string uid)
         {
-            var a = _context.Roles.First(r => r.UserUid == uid).Types;
+            var a = _context.Roles.FirstOrDefault(r => r.UserUid == uid).Types;
             return a.ToList();
         }
         #endregion
