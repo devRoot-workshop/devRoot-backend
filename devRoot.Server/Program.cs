@@ -33,7 +33,7 @@ internal class Program
 
         // // Connection string from system environment | Used in production
         builder.Services.AddDbContextPool<devRootContext>(options =>
-            options.UseNpgsql(Environment.GetEnvironmentVariable("DEVROOTCONNECTIONSTRING", EnvironmentVariableTarget.Machine)));
+            options.UseNpgsql(Environment.GetEnvironmentVariable("DEVROOTCONNECTIONSTRING")));
         /*
             ---------- | DEVELOPMENT ONLY | ----------
         */
@@ -95,7 +95,7 @@ internal class Program
 
         FirebaseApp.Create(new AppOptions
         {
-            Credential = GoogleCredential.FromJson(Environment.GetEnvironmentVariable("DEVROOTFIREBASESTRING", EnvironmentVariableTarget.Machine))
+            Credential = GoogleCredential.FromJson(Environment.GetEnvironmentVariable("DEVROOTFIREBASESTRING"))
         });
         builder.Services.AddSingleton<FirebaseService>();
 
