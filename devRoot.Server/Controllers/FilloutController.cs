@@ -29,7 +29,6 @@ namespace devRoot.Server.Controllers
         public List<FilloutDto> GetUserFillouts()
         {
             var firebaseToken = HttpContext.Items["User"] as FirebaseToken;
-
             return _utils.GetUserFillouts(firebaseToken.Uid.ToString());
         }
 
