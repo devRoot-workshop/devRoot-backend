@@ -120,9 +120,9 @@ internal class Program
         {
             app.UseSwagger();
             app.UseSwaggerUI();
-            app.UseCors(myAllowSpecificOrigins);
         }
 
+        app.UseCors(myAllowSpecificOrigins);
         app.UseHttpsRedirection();
         app.UseRouting();
         app.UseAuthorization();
