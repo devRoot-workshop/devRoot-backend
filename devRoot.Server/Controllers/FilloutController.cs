@@ -29,13 +29,12 @@ namespace devRoot.Server.Controllers
         public List<FilloutDto> GetUserFillouts()
         {
             var firebaseToken = HttpContext.Items["User"] as FirebaseToken;
-
-            return _utils.GetUserFillouts(firebaseToken.Uid);
+            return _utils.GetUserFillouts(firebaseToken.Uid.ToString());
         }
 
         [HttpPost]
         [Route("CreateFillout")]
-        [FirebaseAuthorization]
+        [FirebaseAuthorization(AuthorizationMode.Mandatory)]
         public ActionResult CreateFillout([FromBody] FilloutReq dto)
         {
             var firebaseToken = HttpContext.Items["User"] as FirebaseToken;

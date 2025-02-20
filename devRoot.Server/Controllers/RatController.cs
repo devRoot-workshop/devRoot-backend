@@ -13,7 +13,7 @@ namespace devRoot.Server.Controllers
     public class RatController : Controller
     {
         [HttpGet]
-        [FirebaseAuthorization]
+        [FirebaseAuthorization(AuthorizationMode.Mandatory)]
         public IEnumerable<Rat> Get()
         {
             return Enumerable.Range(1, 5).Select(index => new Rat

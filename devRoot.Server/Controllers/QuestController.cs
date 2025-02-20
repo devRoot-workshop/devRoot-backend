@@ -1,6 +1,7 @@
 using devRoot.Server.Models;
 using Microsoft.AspNetCore.Mvc;
 using devRoot.Server.Auth;
+using FirebaseAdmin.Auth;
 
 namespace devRoot.Server.Controllers;
 
@@ -28,25 +29,13 @@ public class QuestController : Controller
     {
         try
         {
+            var firebaseToken = HttpContext.Items["User"] as FirebaseToken;
             List<int>? sortTagIds = null;
             if (!string.IsNullOrWhiteSpace(sortTags))
             {
                 sortTagIds = sortTags.Split(',').Select(int.Parse).ToList();
             }
-
-            var result = _utils.GetQuests(pageNumber, pageSize, searchQuery, sortTagIds, sortDifficulty, sortLanguage, orderBy, orderDirection);
-
-            int _totalPages = (pageSize != null && pageSize > 0)
-                ? (int)Math.Ceiling(result.TotalItems / (double)pageSize.Value)
-                : 1;
-
-            var paginatedResult = new PaginatedResult<QuestDto>
-            {
-                Items = result.Quests,
-                TotalItems = result.TotalItems,
-                TotalPages = _totalPages
-            };
-
+            var paginatedResult = _utils.GetQuests(pageNumber, pageSize, searchQuery, sortTagIds, sortDifficulty, sortLanguage, orderBy, orderDirection);
             return Ok(paginatedResult);
         }
         catch (Exception ex)
@@ -60,8 +49,6 @@ public class QuestController : Controller
 
     [HttpPost]
     [Route("CreateQuest")]
-    [FirebaseAuthorization]
-    [Authorize(Role.RoleType.QuestCreator)]
     public IActionResult CreateQuest([FromBody] QuestRequest req)
     {
         _utils.RegisterQuest(req);
@@ -70,9 +57,25 @@ public class QuestController : Controller
 
     [HttpGet]
     [Route("{id}/GetQuest")]
-    public QuestDto GetQuest([FromRoute] int id)
+    [FirebaseAuthorization(AuthorizationMode.Optional)]
+    public IActionResult GetQuest([FromRoute] int id)
     {
-        return _utils.GetQuest(id);
+        var firebaseToken = HttpContext.Items["User"] as FirebaseToken;
+        if (firebaseToken is not null)
+        {
+            var vote = _utils.GetUserVotes(firebaseToken.Uid.ToString(), VoteFor.Quest, id).FirstOrDefault();
+            VotedResult<QuestDto> result = new VotedResult<QuestDto>()
+            {
+                Value = _utils.GetQuest(id),
+                VoteType = vote != null ? vote.Type : VoteType.None
+            };
+            return Ok(result);
+        }
+        else
+        {
+            QuestDto result = _utils.GetQuest(id);
+            return Ok(result);
+        }
     }
 
     [HttpPatch]

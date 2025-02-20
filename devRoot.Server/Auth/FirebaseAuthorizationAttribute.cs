@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
 using devRoot.Server.Models;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 namespace devRoot.Server.Auth
 {
@@ -16,38 +17,66 @@ namespace devRoot.Server.Auth
         public static Dictionary<FirebaseToken, List<Role.RoleType>> cachedTokens { get; set; } = new Dictionary<FirebaseToken, List<Role.RoleType>>();
     }
 
-    public class FirebaseAuthorizationAttribute : Attribute, IAuthorizationFilter
+    public class FirebaseAuthorizationAttribute : TypeFilterAttribute
     {
-        public void OnAuthorization(AuthorizationFilterContext context)
+        public FirebaseAuthorizationAttribute(AuthorizationMode authorizationMode) : base(typeof(FirebaseAuthorizationAttributeFilter))
         {
-            try
+            Arguments = new object[] { authorizationMode };
+        }
+
+        public class FirebaseAuthorizationAttributeFilter : IAuthorizationFilter
+        {
+            private readonly AuthorizationMode _authorizationMode;
+
+            public FirebaseAuthorizationAttributeFilter(AuthorizationMode authorizationMode)
             {
-                if (Environment.GetEnvironmentVariable("DEVROOTDEBUG", EnvironmentVariableTarget.Machine) != "TRUE")
+                _authorizationMode = authorizationMode;
+            }
+
+            public void OnAuthorization(AuthorizationFilterContext context)
+            {
+                try
                 {
-                    var authHeader = context.HttpContext.Request.Headers["Authorization"].ToString();
-
-                    if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                    if (Environment.GetEnvironmentVariable("DEVROOTDEBUG", EnvironmentVariableTarget.Machine) != "TRUE")
                     {
-                        context.Result = new UnauthorizedResult();
-                        return;
-                    }
+                        var authHeader = context.HttpContext.Request.Headers["Authorization"].ToString();
 
-                    var token = authHeader.Substring("Bearer ".Length).Trim();
+                        if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                        {
+                            if (_authorizationMode == AuthorizationMode.Mandatory)
+                            {
+                                context.Result = new UnauthorizedResult();
+                            }
+                            else
+                            {
+                                return;
+                            }
+                        }
 
-                    try
-                    {
-                        var decodedToken = FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token).Result;
-                        context.HttpContext.Items["User"] = decodedToken;
-                        Console.WriteLine(decodedToken.Uid);
-                    }
-                    catch
-                    {
-                        context.Result = new UnauthorizedResult();
+                        var token = authHeader.Substring("Bearer ".Length).Trim();
+
+                        try
+                        {
+                            var decodedToken = FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token).Result;
+                            context.HttpContext.Items["User"] = decodedToken;
+                            Console.WriteLine(decodedToken.Uid);
+                        }
+                        catch
+                        {
+                            if (_authorizationMode == AuthorizationMode.Mandatory)
+                            {
+                                context.Result = new UnauthorizedResult();
+                            }
+                            else
+                            {
+                                return;
+                            }
+                        }
                     }
                 }
-            }
-            catch (Exception)
-            {
+                catch (Exception)
+                {
+                }
             }
         }
     }

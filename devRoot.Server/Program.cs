@@ -31,9 +31,17 @@ internal class Program
         builder.Services.AddSwaggerGen();
         builder.Services.AddScoped<Utilites>();
 
-        // // Connection string from system environment | Used in production
+        //Connection string from system environment | Used in production
+
+        var connstring = Environment.GetEnvironmentVariable("DEVROOTCONNECTIONSTRING");
+
+        if (string.IsNullOrEmpty(connstring))
+        {
+            connstring = Utilites.EnvRead("./.env")["DEVROOTCONNECTIONSTRING"];
+        }
+
         builder.Services.AddDbContextPool<devRootContext>(options =>
-            options.UseNpgsql(Environment.GetEnvironmentVariable("DEVROOTCONNECTIONSTRING", EnvironmentVariableTarget.Machine)));
+            options.UseNpgsql(connstring));
         /*
             ---------- | DEVELOPMENT ONLY | ----------
         */
@@ -93,9 +101,16 @@ internal class Program
         });
 
 
+        var firebasestring = Environment.GetEnvironmentVariable("DEVROOTFIREBASESTRING");
+
+        if (string.IsNullOrEmpty(connstring))
+        {
+            firebasestring = Utilites.EnvRead("./.env")["DEVROOTFIREBASESTRING"];
+        }
+
         FirebaseApp.Create(new AppOptions
         {
-            Credential = GoogleCredential.FromJson(Environment.GetEnvironmentVariable("DEVROOTFIREBASESTRING", EnvironmentVariableTarget.Machine))
+            Credential = GoogleCredential.FromJson(firebasestring)
         });
         builder.Services.AddSingleton<FirebaseService>();
 
@@ -105,9 +120,9 @@ internal class Program
         {
             app.UseSwagger();
             app.UseSwaggerUI();
-            app.UseCors(myAllowSpecificOrigins);
         }
 
+        app.UseCors(myAllowSpecificOrigins);
         app.UseHttpsRedirection();
         app.UseRouting();
         app.UseAuthorization();

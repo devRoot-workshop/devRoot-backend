@@ -1,5 +1,6 @@
-﻿using devRoot.Server.Auth;
+using devRoot.Server.Auth;
 using devRoot.Server.Models;
+using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Mvc;
 
 namespace devRoot.Server.Controllers
@@ -16,12 +17,12 @@ namespace devRoot.Server.Controllers
             _utils = utils;
         }
         [HttpGet]
-        [Route("GetRoleTypes")]
-        [FirebaseAuthorization]
-        public List<Role.RoleType> GetRoleTypes()
+        [Route("GetUserRoleTypes")]
+        [FirebaseAuthorization(AuthorizationMode.Mandatory)]
+        public List<Role.RoleType> GetUserRoleTypes()
         {
-
-            return _utils.GetUserRoleTypes("asd");
+            var firebaseToken = HttpContext.Items["User"] as FirebaseToken;
+            return _utils.GetUserRoleTypes(firebaseToken.Uid.ToString());
         }
     }
 }
