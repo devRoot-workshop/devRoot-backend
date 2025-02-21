@@ -7,6 +7,7 @@ public class QuestDto
     public string? TaskDescription { get; set; }
     public List<ExampleCode>? ExampleCodes { get; set; }
     public string? Console { get; set; }
+    public string? PseudoCode { get; set; }
     public QuestDifficulty Difficulty { get; set; }
     public List<QuestLanguage>? AvailableLanguages { get; set; }
     public DateOnly Created { get; set; }
@@ -29,6 +30,7 @@ public class BaseQuest
     public string? Title { get; set; }
     public string? TaskDescription { get; set; }
     public string? Console { get; set; }
+    public string? PseudoCode { get; set; }
     public List<QuestLanguage>? AvailableLanguages { get; set; }
 }
 
@@ -48,11 +50,12 @@ public enum QuestDifficulty
 
 public enum QuestLanguage
 {
-    none = 0,
-    python = 1,
-    csharp = 2,
-    nextjs = 3,
-    java = 4,
-    cpp = 5,
-    c = 6
+    none,
+    python,
+    csharp,
+    nextjs,
+    java,
+    cpp,
+    c,
+    psuedocode
 }

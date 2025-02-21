@@ -136,6 +136,7 @@ namespace devRoot.Server
                         Console = quest.Console,
                         Difficulty = quest.Difficulty,
                         AvailableLanguages = quest.AvailableLanguages,
+                        PseudoCode = "",
                         Tags = quest.Tags.Select(t =>
                         new TagDto
                         {
@@ -259,6 +260,7 @@ namespace devRoot.Server
                         Code = excode.Code,
                         Language = excode.Language }).ToList(),
                     Console = questRequest.Console,
+                    PseudoCode = questRequest.PseudoCode,
                     AvailableLanguages = questRequest.AvailableLanguages,              
                 };
                 _context.Quests.Add(newQuest);
@@ -323,6 +325,7 @@ namespace devRoot.Server
                     TaskDescription = quest.TaskDescription,
                     ExampleCodes = quest.ExampleCodes,
                     Console = quest.Console,
+                    PseudoCode = quest.PseudoCode,
                     Difficulty = quest.Difficulty,
                     AvailableLanguages = quest.AvailableLanguages,
                     Tags = quest.Tags.Select(tag =>
