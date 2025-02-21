@@ -149,12 +149,6 @@ namespace devRoot.Server
                             .Sum(v => v.Type == VoteType.UpVote ? 1 : v.Type == VoteType.DownVote ? -1 : 0)
                     });
                 
-                if (!string.IsNullOrWhiteSpace(searchQuery))
-                {
-                    var normalizedSearch = RemoveDiacritics(searchQuery);
-                    query = query.Where(q => RemoveDiacritics(q.Title).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase) ||
-                                            RemoveDiacritics(q.TaskDescription).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase));
-                }
                 if (sortTags != null && sortTags.Count > 0)
                 {
                     List<int> sortTagSet = new List<int>(sortTags);
@@ -182,6 +176,12 @@ namespace devRoot.Server
                     {
                         query = orderFunc(query);
                     }
+                }
+                if (!string.IsNullOrWhiteSpace(searchQuery))
+                {
+                    var normalizedSearch = RemoveDiacritics(searchQuery);
+                    query = query.AsEnumerable().Where(q => RemoveDiacritics(q.Title).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase) ||
+                                            RemoveDiacritics(q.TaskDescription).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase)).AsQueryable();
                 }
                 int totalItems = query.Count();
                 List<QuestDto> items;
