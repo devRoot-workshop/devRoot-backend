@@ -1,4 +1,4 @@
-﻿using devRoot.Server.Models;
+using devRoot.Server.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 

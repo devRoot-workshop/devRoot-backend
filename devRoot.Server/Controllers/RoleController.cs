@@ -1,4 +1,4 @@
-﻿using devRoot.Server.Auth;
+using devRoot.Server.Auth;
 using devRoot.Server.Models;
 using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Mvc;

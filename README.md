@@ -38,13 +38,27 @@ On windows:
 .\setup.ps1 migrate
 ```
 
+And at last, to build into a docker container run:
+
+```sh
+make docker
+```
+
+On windows:
+
+```bat
+.\setup.ps1 docker
+```
+
 *Note: You need to run the development container, or use a working postgresql database for this to work.*
 
 ## Available Targets
 
 - `build`: Builds the backend application
-- `run`: Runs the built backend application
+- `run_dev`: Runs the built backend application in development mode
+- `run_prod`: Runs the built backend application in production mode
 - `clean`: Cleans up all leftover binaries
+- `docker`: Builds the application into a docker container, and runs it
 - `migrate`: Creates a migration, and updates the database with it
 
 <hr>
