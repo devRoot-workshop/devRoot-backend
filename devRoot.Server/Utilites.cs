@@ -148,7 +148,7 @@ namespace devRoot.Server
                             .Where(v => v.For == VoteFor.Quest && v.VoteId == quest.Id)
                             .Sum(v => v.Type == VoteType.UpVote ? 1 : v.Type == VoteType.DownVote ? -1 : 0)
                     });
-                
+
                 if (sortTags != null && sortTags.Count > 0)
                 {
                     List<int> sortTagSet = new List<int>(sortTags);
@@ -179,9 +179,8 @@ namespace devRoot.Server
                 }
                 if (!string.IsNullOrWhiteSpace(searchQuery))
                 {
-                    var normalizedSearch = RemoveDiacritics(searchQuery);
-                    query = query.AsEnumerable().Where(q => RemoveDiacritics(q.Title).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase) ||
-                                            RemoveDiacritics(q.TaskDescription).Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase)).AsQueryable();
+                    query = query.Where(q => EF.Functions.Unaccent(q.Title).ToLower().Contains(EF.Functions.Unaccent(searchQuery).ToLower()) ||
+                    EF.Functions.Unaccent(q.TaskDescription).ToLower().Contains(EF.Functions.Unaccent(searchQuery).ToLower()));
                 }
                 int totalItems = query.Count();
                 List<QuestDto> items;
@@ -256,12 +255,14 @@ namespace devRoot.Server
                     Difficulty = questRequest.Difficulty,
                     Created = DateOnly.FromDateTime(DateTime.Now),
                     ExampleCodes = questRequest?.ExampleCodes?.Select(excode =>
-                    new ExampleCode {
+                    new ExampleCode
+                    {
                         Code = excode.Code,
-                        Language = excode.Language }).ToList(),
+                        Language = excode.Language
+                    }).ToList(),
                     Console = questRequest.Console,
                     PseudoCode = questRequest.PseudoCode,
-                    AvailableLanguages = questRequest.AvailableLanguages,              
+                    AvailableLanguages = questRequest.AvailableLanguages,
                 };
                 _context.Quests.Add(newQuest);
                 _context.SaveChanges();
@@ -276,7 +277,7 @@ namespace devRoot.Server
         {
             try
             {
-                Quest refrence = _context.Quests.Include(t=>t.Tags).First(q => q.Id == questid);
+                Quest refrence = _context.Quests.Include(t => t.Tags).First(q => q.Id == questid);
                 Tag tag = _context.Tags.Find(tagid);
                 if (tag != null)
                 {
@@ -347,16 +348,16 @@ namespace devRoot.Server
                 return new();
             }
         }
-        
+
         #endregion
-        
+
 
         public int NumberOfQuests()
         {
             return _context.Quests.Count();
         }
 
-        public List<TagDto> GetTags(string? searchquery = null)
+        public List<TagDto> GetTags(string? searchQuery = null)
         {
             try
             {
@@ -367,11 +368,10 @@ namespace devRoot.Server
                     Description = tag.Description,
                     Name = tag.Name,
                 });
-                if (!String.IsNullOrEmpty(searchquery))
+                if (!string.IsNullOrEmpty(searchQuery))
                 {
-                    query = query.Where(t =>
-                    RemoveDiacritics(t.Name).Contains(RemoveDiacritics(searchquery), StringComparison.OrdinalIgnoreCase)
-                    || RemoveDiacritics(t.Description).Contains(RemoveDiacritics(searchquery), StringComparison.OrdinalIgnoreCase));
+                    query = query.Where(q => EF.Functions.Unaccent(q.Name).ToLower().Contains(EF.Functions.Unaccent(searchQuery).ToLower()) ||
+                    EF.Functions.Unaccent(q.Description).ToLower().Contains(EF.Functions.Unaccent(searchQuery).ToLower()));
                 }
                 return query.ToList();
 
@@ -409,7 +409,7 @@ namespace devRoot.Server
         {
             try
             {
-                _context.Tags.Add(new Tag {Name = request.Name, Description = request.Description });
+                _context.Tags.Add(new Tag { Name = request.Name, Description = request.Description });
                 _context.SaveChanges();
             }
             catch (Exception e)

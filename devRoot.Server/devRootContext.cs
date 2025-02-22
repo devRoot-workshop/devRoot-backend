@@ -16,6 +16,7 @@ namespace devRoot.Server
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.HasPostgresExtension("unaccent");
 
             modelBuilder.Entity<Tag>().Property(k => k.Id).ValueGeneratedOnAdd();
             modelBuilder.Entity<Quest>().Property(k => k.Id).ValueGeneratedOnAdd();
