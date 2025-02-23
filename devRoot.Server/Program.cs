@@ -29,7 +29,7 @@ internal class Program
         });
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-        builder.Services.AddScoped<Utilites>();
+        builder.Services.AddScoped<Utilities>();
 
         //Connection string from system environment | Used in production
 
@@ -37,7 +37,7 @@ internal class Program
 
         if (string.IsNullOrEmpty(connstring))
         {
-            connstring = Utilites.EnvRead("./.env")["DEVROOTCONNECTIONSTRING"];
+            connstring = Utilities.EnvRead("./.env")["DEVROOTCONNECTIONSTRING"];
         }
 
         builder.Services.AddDbContextPool<devRootContext>(options =>
@@ -105,7 +105,7 @@ internal class Program
 
         if (string.IsNullOrEmpty(connstring))
         {
-            firebasestring = Utilites.EnvRead("./.env")["DEVROOTFIREBASESTRING"];
+            firebasestring = Utilities.EnvRead("./.env")["DEVROOTFIREBASESTRING"];
         }
 
         FirebaseApp.Create(new AppOptions

@@ -2,8 +2,6 @@
 using devRoot.Server.Models;
 using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using System.ComponentModel;
 
 namespace devRoot.Server.Controllers
 {
@@ -11,8 +9,8 @@ namespace devRoot.Server.Controllers
     [ApiController]
     public class FilloutController : ControllerBase
     {
-        private readonly Utilites _utils;
-        public FilloutController(Utilites utils)
+        private readonly Utilities _utils;
+        public FilloutController(Utilities utils)
         {
             _utils = utils;
         }
@@ -29,7 +27,7 @@ namespace devRoot.Server.Controllers
         public List<FilloutDto> GetUserFillouts()
         {
             var firebaseToken = HttpContext.Items["User"] as FirebaseToken;
-            return _utils.GetUserFillouts(firebaseToken.Uid.ToString());
+            return _utils.GetUserFillouts(firebaseToken?.Uid.ToString() ?? "");
         }
 
         [HttpPost]
@@ -44,7 +42,14 @@ namespace devRoot.Server.Controllers
             fillout.SubmittedLanguage = dto.SubmittedLanguage;
             fillout.SubmittedCode = dto.SubmittedCode;
             fillout.QuestId = dto.QuestId;
-            fillout.Uid = firebaseToken.Uid;
+            if (firebaseToken is not null)
+            {
+                fillout.Uid = firebaseToken.Uid;
+            }
+            else
+            {
+                return Unauthorized();
+            }
 
             _utils.CreateFillout(fillout);
             return Ok();

@@ -15,10 +15,10 @@ namespace devRoot.Server.Auth
 
         private class AuthorizeFilter : IAuthorizationFilter
         {
-            private readonly Utilites _utils;
+            private readonly Utilities _utils;
             private readonly List<Role.RoleType> _allowedRoles;
 
-            public AuthorizeFilter(Utilites utils, Role.RoleType[] allowedRoles)
+            public AuthorizeFilter(Utilities utils, Role.RoleType[] allowedRoles)
             {
                 _utils = utils;
                 _allowedRoles = allowedRoles.ToList();

@@ -9,20 +9,23 @@ namespace devRoot.Server.Controllers
     [Route("[controller]")]
     public class RoleController : Controller
     {
-        private readonly IHostEnvironment hostEnvironment;
-        
-        private readonly Utilites _utils;
-        public RoleController(Utilites utils)
+        private readonly Utilities _utils;
+        public RoleController(Utilities utils)
         {
             _utils = utils;
         }
+
         [HttpGet]
         [Route("GetUserRoleTypes")]
         [FirebaseAuthorization(AuthorizationMode.Mandatory)]
         public List<Role.RoleType> GetUserRoleTypes()
         {
             var firebaseToken = HttpContext.Items["User"] as FirebaseToken;
-            return _utils.GetUserRoleTypes(firebaseToken.Uid.ToString());
+            if (firebaseToken is not null)
+            {
+                return _utils.GetUserRoleTypes(firebaseToken.Uid.ToString());
+            }
+            return new List<Role.RoleType>();
         }
     }
 }

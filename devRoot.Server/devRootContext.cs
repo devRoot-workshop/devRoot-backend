@@ -1,17 +1,16 @@
 using devRoot.Server.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace devRoot.Server
 {
     public class devRootContext(DbContextOptions<devRootContext> options) : DbContext(options)
     {
-        public DbSet<Tag>? Tags { get; set; }
-        public DbSet<Quest>? Quests { get; set; }
-        public DbSet<Role>? Roles { get; set; }
-        public DbSet<Fillout>? Fillouts { get; set; }
-        public DbSet<ExampleCode>? ExampleCodes {  get; set; }
-        public DbSet<Vote>? Votes { get; set; }
+        public required DbSet<Tag> Tags { get; set; }
+        public required DbSet<Quest> Quests { get; set; }
+        public required DbSet<Role> Roles { get; set; }
+        public required DbSet<Fillout> Fillouts { get; set; }
+        public required DbSet<ExampleCode> ExampleCodes { get; set; }
+        public required DbSet<Vote> Votes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

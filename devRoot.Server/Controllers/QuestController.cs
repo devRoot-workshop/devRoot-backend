@@ -9,8 +9,8 @@ namespace devRoot.Server.Controllers;
 [Route("[controller]")]
 public class QuestController : Controller
 {
-    private readonly Utilites _utils;
-    public QuestController(Utilites utils)
+    private readonly Utilities _utils;
+    public QuestController(Utilities utils)
     {
         _utils = utils;
     }

@@ -9,8 +9,8 @@ namespace devRoot.Server.Controllers
     [Route("[controller]")]
     public class VoteController : Controller
     {
-        private readonly Utilites _utils;
-        public VoteController(Utilites utils)
+        private readonly Utilities _utils;
+        public VoteController(Utilities utils)
         {
             _utils = utils;
         }
@@ -34,7 +34,7 @@ namespace devRoot.Server.Controllers
             }
             catch (Exception)
             {
-                
+
             }
             return Ok();
         }
@@ -49,14 +49,18 @@ namespace devRoot.Server.Controllers
             try
             {
                 var firebaseToken = HttpContext.Items["User"] as FirebaseToken;
-                var result = _utils.GetUserVotes(firebaseToken.Uid.ToString(), For, VoteId);
-                return Ok(result);
+                if (firebaseToken is not null)
+                {
+                    var result = _utils.GetUserVotes(firebaseToken.Uid.ToString(), For, VoteId);
+                    return Ok(result);
+                }
+                return Unauthorized();
             }
             catch (Exception)
             {
                 return Ok();
             }
-            
+
         }
     }
 }
